@@ -1,0 +1,533 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>마이크로그리드 에너지 대시보드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e8f3fc;--card:#fff;--tx:#16253b;--mu:#6c7d93;--bd:#dce9f6;--pk:rgba(232,84,107,.08);--ok:#16a574;--pv:#f2a31b;--ld:#3a7bf2;--dc:#7b6cf0;--gr:#e8546b;--bl:#2f73f0;--bl2:#e4f0fd;--sh:0 6px 22px rgba(70,130,200,.12);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c1626;--card:#12233a;--tx:#e6f0fa;--mu:#8ea3bc;--bd:#1e3350;--pk:rgba(232,84,107,.16);--bl2:#16304f;--sh:0 6px 22px rgba(0,0,0,.35)}}
+:root[data-theme="dark"]{--bg:#0c1626;--card:#12233a;--tx:#e6f0fa;--mu:#8ea3bc;--bd:#1e3350;--pk:rgba(232,84,107,.16);--bl2:#16304f;--sh:0 6px 22px rgba(0,0,0,.35)}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--tx);font-family:Pretendard,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",system-ui,sans-serif;line-height:1.5}
+.wrap{max-width:1440px;margin:0 auto;padding:20px 16px 40px;min-width:0}
+header{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:flex-end;margin-bottom:16px}
+h1{font-size:1.45rem;margin:0;letter-spacing:-.02em}
+h2{font-size:1rem;margin:0 0 12px;font-weight:650}
+.mu{color:var(--mu);font-size:.85rem;margin:2px 0 0}
+.se{padding:6px 16px;border:1px solid var(--bd);border-radius:99px;background:var(--card);color:var(--tx);font:inherit;font-size:.85rem;font-weight:600;cursor:pointer}
+.se[aria-pressed="true"]{background:var(--ok);border-color:var(--ok);color:#fff}
+.ca{display:flex;align-items:center;gap:6px;margin-bottom:12px}
+.ctrl .se{width:auto;padding:4px 12px;font-size:.8rem;border-radius:99px;background:var(--card)}
+.ctrl .se[aria-pressed="true"]{background:var(--ok);border-color:var(--ok);color:#fff}
+.b{font-size:.78rem;padding:4px 10px;border-radius:99px;border:1px solid var(--bd);background:var(--card);color:var(--mu)}
+.b.pk{background:var(--gr);color:#fff;border-color:var(--gr)}
+.b.dr{background:var(--ok);color:#fff;border-color:var(--ok)}
+.side{display:flex;flex-direction:column;gap:8px;position:sticky;top:12px}
+.kpis{display:grid;gap:6px}
+.k{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:6px 10px;border-left:3px solid var(--c);display:grid;grid-template-columns:1fr auto;column-gap:8px;align-items:baseline}
+.k small{color:var(--mu);font-size:.74rem}
+.k b{text-align:right;font-size:1.05rem;letter-spacing:-.02em;line-height:1.25}
+.k b i{font-style:normal;font-size:.7rem;color:var(--mu);font-weight:500;margin-left:3px}
+.k em{grid-column:1/-1;font-style:normal;font-size:.68rem;color:var(--mu);line-height:1.3}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:14px;align-items:start}
+@media(max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}.side{order:-1;position:static}.kpis{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}}
+main{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;min-width:0}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:16px;min-width:0}
+.ch{position:relative;height:270px;width:100%;min-width:0}.ch.s{height:190px}
+.ctrl{position:static}
+.ctrl label{display:block;font-size:.84rem;margin:12px 0 4px;color:var(--mu)}
+.ctrl input[type=range]{width:100%;accent-color:var(--ok)}
+.ctrl select,.ctrl button{width:100%;padding:8px;border-radius:8px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font:inherit}
+.ctrl button{cursor:pointer;font-weight:600}
+.ctrl hr{border:0;border-top:1px solid var(--bd);margin:16px 0 4px}
+.sw{display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-weight:650}
+.sw input{width:42px;height:24px;accent-color:var(--ok)}
+.devs{display:grid;gap:6px;margin-top:8px}
+.devs label{margin:0;display:flex;gap:8px;align-items:center;color:var(--tx)}
+.devs span{margin-left:auto;color:var(--mu);font-size:.78rem}
+.hint{font-size:.78rem;color:var(--mu);margin:8px 0 0}
+.bat{display:flex;gap:20px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.bv{display:flex;align-items:center}
+.bb{width:170px;height:68px;border:3px solid var(--tx);border-radius:10px;position:relative;overflow:hidden}
+.bn{width:7px;height:26px;background:var(--tx);border-radius:0 4px 4px 0}
+.fill{position:absolute;inset:0 auto 0 0;background:var(--c,var(--ok));transition:width .4s,background .4s;opacity:.85}
+.bb span{position:absolute;inset:0;display:grid;place-items:center;font-weight:700;font-size:1.25rem;color:var(--tx);text-shadow:0 0 6px var(--card)}
+.bs b{font-size:1.15rem}.bs p{margin:2px 0;font-size:.84rem;color:var(--mu)}
+.sum{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px}
+.sum big{font-size:2.1rem;font-weight:750;color:var(--ok);letter-spacing:-.03em;line-height:1.1}
+.sum div p{margin:0;font-size:.82rem;color:var(--mu)}
+.bd{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--bd);margin:14px 0 6px}
+.bd i{display:block;min-width:0;transition:width .4s}
+.lg{display:flex;gap:16px;flex-wrap:wrap;font-size:.82rem;color:var(--mu)}
+.lg b{color:var(--tx)}.lg u{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;text-decoration:none}
+.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media(max-width:1280px){.row{grid-template-columns:minmax(0,1fr)}}
+.row>.card:nth-child(2){order:-1}
+.row{align-items:start}
+.cbs{display:flex;gap:6px;align-items:center}
+#gcard.fold{display:none}
+body.editing #se{display:none}
+@media(min-width:1281px){
+  main{grid-template-columns:minmax(0,2.3fr) minmax(0,1fr);align-items:start}
+  main>.bcard{flex-wrap:nowrap}
+  .bcard .bv{flex:none}
+  .bcard .bs{flex-wrap:nowrap;white-space:nowrap;gap:6px 18px}
+  .row{display:contents}
+  .row>.card:nth-child(2){grid-column:1/-1;order:-1}
+  main>.bcard{grid-column:1/-1;order:1}
+  #gcard{grid-column:2;order:2}
+  main:has(#gcard:not(.fold)){grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch}
+  main:has(#gcard:not(.fold)) .row>.card:nth-child(2){grid-column:1;order:-1}
+  main:has(#gcard:not(.fold)) #gcard{grid-column:2;order:0}
+  main:has(#gcard:not(.fold))>.bcard{grid-column:1/-1;order:3}
+}
+.sum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 16px}
+.sum big{font-size:1.7rem}
+.ch+.sum{margin-top:12px}
+.gbox{margin-top:10px}
+.gbox .devs{grid-template-columns:repeat(auto-fill,minmax(min(230px,100%),1fr));margin:0 0 4px}
+.gbox button{width:100%;padding:8px;border-radius:8px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font:inherit;font-weight:600;cursor:pointer}
+.gbox .at{width:auto;padding:7px 14px;margin-top:6px}
+.gbox .add{margin-top:6px;border-top:0}
+.tpl{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin-bottom:6px}
+.gbox .tpl button{width:auto;min-width:0;text-align:left;padding:6px 7px;font-size:.82rem;font-weight:600;line-height:1.3;overflow-wrap:anywhere}
+.tpl small{display:block;white-space:nowrap;font-weight:400;color:var(--mu);font-size:.66rem;line-height:1.25;margin-top:1px}
+@media(max-width:640px){
+  .tpl{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .gbox .tpl button{padding:6px 7px;font-size:.8rem}
+  .tpl small{font-size:.64rem}
+  .sum{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .add .r{gap:4px}
+  .add input{font-size:.8rem;padding:6px 6px}
+  .card{padding:12px}
+  .ch{height:230px}
+}
+.tp{margin:8px 0 4px}
+#tm:empty{display:none}
+.gbox .tpl button.on{background:var(--ok);border-color:var(--ok);color:#fff}
+.tpl button.on small{color:rgba(255,255,255,.85)}.bcard{display:flex;gap:10px 22px;align-items:center;flex-wrap:wrap;padding:12px 16px}
+.bcard h2{margin:0;font-size:.95rem}
+.bcard .bb{width:96px;height:38px;border-width:2px;border-radius:7px}
+.bcard .bn{height:14px;width:5px}
+.bcard .bb span{font-size:.85rem}
+.bs{display:flex;gap:8px 24px;flex-wrap:wrap}
+.bs div small{display:block;color:var(--mu);font-size:.74rem;line-height:1.3}
+.bs div b{font-size:.95rem}
+.add{margin-top:14px;padding-top:2px;border-top:1px solid var(--bd)}
+.add input{width:100%;padding:8px;border-radius:8px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font:inherit;font-size:.88rem}
+.add .r{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:6px 0}
+.add button{margin-top:0}
+.devs .x{margin-left:6px;width:22px;height:22px;padding:0;line-height:1;border-radius:50%;font-size:.95rem;color:var(--mu);flex:none}
+.devs span{white-space:nowrap}
+.add .at{margin-top:10px;text-align:left}
+#af{margin-top:8px}
+#gf{margin-top:8px}
+.gh{margin:18px 0 0;font-size:.9rem}
+.ch2{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.ch2 h2{margin:0 0 12px}
+#play{margin-top:8px}
+.eds{display:none;margin-top:10px}
+body.editing .eds{display:block}
+.lsec{margin-top:12px}
+.mon{display:flex;gap:10px 22px;align-items:flex-end;margin-left:auto}
+.mon>div{text-align:right;border-right:3px solid var(--c);padding-right:9px}
+.mon small{display:block;color:var(--mu);font-size:.74rem;line-height:1.3}
+.mon b{font-size:1.2rem;letter-spacing:-.02em;line-height:1.25}
+.mon b i{font-style:normal;font-size:.72rem;color:var(--mu);font-weight:500;margin-left:3px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:middle;flex:none}
+.tpl button.on .dot{box-shadow:0 0 0 1.5px #fff}
+.chd{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
+.chd h2{margin:0}
+.chd .se{padding:4px 14px;font-size:.8rem}
+.tpl .nm{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:14px}
+@media(max-width:1500px) and (min-width:641px){.tpl small{font-size:.58rem}}
+.rs{margin-top:10px;padding:6px 12px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit;font-size:.8rem;cursor:pointer}
+.rs[hidden]{display:none}
+.sun{display:flex;align-items:center;gap:12px;margin-top:10px;font-size:.84rem;color:var(--mu)}
+.sun[hidden]{display:none}
+body:not(.editing) .sun{display:none}
+.sun label{white-space:nowrap;flex:0 0 6.5em}
+.sun b{color:var(--tx);display:inline-block;min-width:2.6em}
+.sun input{flex:1;min-width:0;accent-color:var(--ok)}
+.gbox .tpl button{position:relative}
+.gbox .tpl button.u{padding-right:6px}
+.tpl .x{position:absolute;top:1px;right:3px;padding:0 4px;font-size:.95rem;line-height:1.3;color:var(--mu);cursor:pointer}
+.tpl button.on .x{color:#fff}
+.tl{margin:8px 0 4px;font-weight:650;color:var(--tx);font-size:.8rem}
+.fab,.ctrl .cx{display:none}
+@media(max-width:900px){
+  .wrap{padding-bottom:calc(84px + var(--shh,0px))}
+  .ctrl{display:none;position:fixed;top:auto;left:auto;right:8px;width:min(300px,78vw);bottom:calc(68px + env(safe-area-inset-bottom,0px));max-height:min(50vh,380px);overflow-y:auto;overscroll-behavior:contain;z-index:20;padding:8px 12px 10px;font-size:.8rem;box-shadow:0 8px 24px rgba(0,0,0,.28)}
+  .ctrl.open{display:block}
+  .ch2 h2{margin:0;font-size:.9rem}
+  .ca{margin-bottom:0}
+  .ctrl .cx{display:block;width:28px;height:28px;padding:0;font-size:1.1rem;line-height:1;border-radius:50%}
+  .ctrl label{margin:6px 0 1px;font-size:.74rem}
+  .cg{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;align-items:end;margin-top:4px}
+  .cg.tm{grid-template-columns:1fr auto}
+  .cg.one{grid-template-columns:1fr}
+  .cg>*{min-width:0}
+  .cg label{margin:0 0 1px}
+  #play{margin-top:0;width:auto;white-space:nowrap;padding:6px 10px;font-size:.78rem}
+  .ctrl select{font-size:.78rem}
+  .ctrl select,.ctrl button,.add input{padding:5px 8px}
+  .ctrl hr{margin:8px 0 2px}
+  .sw{margin-top:0;font-size:.78rem;gap:6px}
+  .sw span{line-height:1.2}
+  .sw input{width:34px;height:20px;flex:none}
+  .ctrl .hint{font-size:.7rem;margin-top:4px}
+  .ctrl>.hint{display:none}
+  .fab{display:flex;align-items:center;gap:6px;position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:30;padding:11px 18px;border:0;border-radius:99px;background:var(--ok);color:#fff;font:inherit;font-weight:650;box-shadow:0 6px 20px rgba(0,0,0,.3);cursor:pointer}
+}
+/* ---- theme: soft icy blue, big rounded white cards, blue primary / green eco accent ---- */
+html,body{font-family:"Noto Sans KR",Pretendard,"Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif}
+body{background:var(--bg);min-height:100vh}
+html,body{height:auto;overflow-y:auto;-webkit-overflow-scrolling:touch}
+canvas{touch-action:pan-y!important}
+input[type=range]{touch-action:pan-y}
+h1{font-size:1.75rem;font-weight:800;letter-spacing:-.03em;line-height:1.25}
+h2{font-weight:700;letter-spacing:-.02em}
+.ttl{display:flex;align-items:center;gap:12px}
+.logo{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:#dcf3ec;color:var(--ok);flex:none}
+.logo svg{width:24px;height:24px}
+.card{border:0;border-radius:22px;box-shadow:var(--sh);padding:20px}
+.bcard{padding:14px 20px}
+.side{gap:10px}
+.kpis{gap:8px}
+.k{border:0;border-radius:16px;padding:10px 14px;box-shadow:var(--sh)}
+.k small::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c);margin-right:6px}
+.k b{font-weight:700}
+.mon{gap:10px}
+.mon>div{display:flex;align-items:center;gap:10px;text-align:left;background:var(--card);border:0;border-radius:16px;padding:9px 18px 9px 10px;box-shadow:var(--sh)}
+.mon b{display:block;font-size:1.15rem;font-weight:700}
+.ic{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:var(--bl2);background:color-mix(in srgb,var(--c) 16%,transparent);color:var(--c);flex:none}
+.ic svg{width:19px;height:19px}
+.se,.chd .se{background:var(--bl2);border:0;color:var(--bl);font-weight:700;padding:5px 15px}
+.se[aria-pressed="true"]{background:var(--bl);color:#fff}
+.ctrl select,.ctrl button,.gbox button,.add input{border-radius:12px;border:1px solid var(--bd);background:var(--card)}
+.ctrl select,.add input{background:var(--bg)}
+.ctrl .cx{background:var(--bl2);border-color:transparent;color:var(--bl)}
+#play,#ga,#da{background:var(--bl);border-color:var(--bl);color:#fff}
+.gbox .at,.ctrl .add .at,.rs{background:var(--bl2);border-color:transparent;color:var(--bl);font-weight:700}
+.rs{border-radius:12px;border:0}
+.ctrl input[type=range],.sun input{accent-color:var(--bl)}
+.gbox .tpl button{background:var(--card);border:1.5px solid var(--bd);border-radius:14px;color:var(--tx)}
+.gbox .tpl button.on{background:var(--bl2);border-color:var(--bl);color:var(--tx)}
+.tpl button.on small,.tpl button.on .x{color:var(--mu)}
+.tpl button.on .dot{box-shadow:0 0 0 1.5px var(--card)}
+.sw input{-webkit-appearance:none;appearance:none;width:46px;height:28px;margin:0;border-radius:99px;background:#cbd7e5;position:relative;cursor:pointer;transition:background .2s;flex:none}
+.sw input::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.sw input:checked{background:var(--ok)}
+.sw input:checked::after{transform:translateX(18px)}
+.sw input:focus-visible{outline:2px solid var(--bl);outline-offset:2px}
+.bd{height:12px;border-radius:99px;background:var(--bl2)}
+.lg u{border-radius:50%}
+.bb{border-color:var(--mu);border-radius:12px;background:var(--bl2)}
+.bn{background:var(--mu)}
+.fab{background:var(--bl);box-shadow:0 8px 22px rgba(47,115,240,.4)}
+@media(max-width:900px){
+  .ctrl{padding:10px 14px 14px;border-radius:20px;box-shadow:0 12px 32px rgba(40,90,160,.28)}
+  .sw input{width:38px;height:24px}
+  .sw input::after{width:18px;height:18px}
+  .sw input:checked::after{transform:translateX(14px)}
+  #play{padding:6px 12px}
+}
+@media(max-width:640px){
+  .card{padding:14px}
+  .bcard{padding:12px 14px}
+  h1{font-size:1.35rem}
+  .logo{width:38px;height:38px}
+  .mon>div{padding:7px 12px 7px 8px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="ttl"><span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19c0-8 5-14 15-14 0 10-6 15-14 15"/><path d="M5 19c3-5 6-8 11-10"/></svg></span><div><h1>스마트홈 마이크로그리드 대시보드</h1><p class="mu">태양광 5 kW · ESS 10 kWh / 3 kW · 시뮬레이션 데이터 (30분 단위)</p></div></div>
+  <div class="mon" role="group" aria-label="이번 달 전력 합계">
+    <div style="--c:var(--pv)"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span><span><small>이번 달 발전량</small><b>724.8<i>kWh</i></b></span></div>
+    <div style="--c:var(--ld)"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/></svg></span><span><small>이번 달 소비량</small><b>861.3<i>kWh</i></b></span></div>
+  </div>
+</header>
+<div class="grid">
+<main>
+  <div class="row">
+  <div class="card fold" id="gcard"><div class="chd"><h2>발전량 vs 부하 수요</h2><button class="se" id="sd" type="button">완료</button></div><div class="ch"><canvas id="c1"></canvas></div>
+    <div class="sun" id="sun" hidden><label for="cloud">일사량 <b id="cl"></b></label><input type="range" id="cloud" min="20" max="100" step="5" value="85"></div>
+    <div class="sun" id="wsun" hidden><label for="wind">풍량 <b id="wl"></b></label><input type="range" id="wind" min="20" max="100" step="5" value="70"></div>
+    <div class="eds">
+  <div class="gbox gsec">
+    <p class="hint tl">발전원</p>
+    <div class="tpl" id="tpl" role="group" aria-label="발전원 템플릿"></div>
+    <p class="hint" id="tm"></p>
+    <div class="devs" id="gens"></div>
+    <div class="add">
+      <button class="at" id="gt" type="button" aria-expanded="false" aria-controls="gf">＋ 발전원 직접 추가</button>
+      <div id="gf" hidden>
+        <input id="gn" placeholder="발전원 이름 (예: 소형 풍력)" maxlength="12">
+        <div class="r"><input id="gs" type="number" min="0" max="23.5" step="0.5" placeholder="시작(시)" aria-label="발전 시작 시각"><input id="ge" type="number" min="0.5" max="24" step="0.5" placeholder="종료(시)" aria-label="발전 종료 시각"><input id="gk" type="number" min="0.1" max="20" step="0.1" placeholder="kW" aria-label="발전 출력"></div>
+        <button id="ga" type="button">발전원 추가</button>
+        <p class="hint" id="gm">주로 발전하는 시간대(30분 단위)와 출력(kW)을 입력하세요.</p>
+      </div>
+    </div>
+  </div>
+  <div class="gbox lsec">
+    <p class="hint tl">부하</p>
+  <div class="tpl" id="ltpl" role="group" aria-label="부하"></div>
+  <div class="add">
+    <button class="at" id="at" type="button" aria-expanded="false" aria-controls="af">＋ 부하 직접 추가</button>
+    <div id="af" hidden>
+    <input id="dn" placeholder="기기 이름 (예: 식기세척기)" maxlength="12">
+    <div class="r"><input id="ds" type="number" min="0" max="23.5" step="0.5" placeholder="시작(시)" aria-label="시작 시각"><input id="de" type="number" min="0.5" max="24" step="0.5" placeholder="종료(시)" aria-label="종료 시각"><input id="dk" type="number" min="0.1" max="10" step="0.1" placeholder="kW" aria-label="사용 전력"></div>
+    <button id="da" type="button">부하 추가</button>
+    <p class="hint" id="dm">주로 쓰는 시간대(30분 단위)와 사용 전력(kW)을 입력하세요.</p>
+    </div>
+  </div>
+  </div>
+    <button class="rs" id="rs" type="button" hidden>삭제한 기본 항목 복원</button>
+    </div>
+    <p class="hint">붉은 영역은 피크 타임(17–22시), 막대는 전력 단가입니다. 점선은 부하 제어를 적용하기 전 수요입니다.</p></div>
+  <div class="card"><div class="chd"><h2>실시간 요금제 기준 비용 절감 효과</h2><button class="se" id="se" type="button" aria-pressed="false">편집</button></div>
+    <div class="ch"><canvas id="c3"></canvas></div>
+    <div class="sum" id="sum"></div>
+    <div class="bd" id="bd"></div><div class="lg" id="lg"></div></div>
+  </div>
+  <div class="card bcard"><h2>배터리</h2>
+    <div class="bv"><div class="bb"><div class="fill" id="fill"></div><span id="soc"></span></div><div class="bn"></div></div>
+    <div class="bs" id="bs"></div></div>
+</main>
+<div class="side">
+<section class="kpis" id="kpis"></section>
+<aside class="card ctrl" id="ctrl">
+  <div class="ch2"><h2>시뮬레이션 설정</h2><div class="ca"><button class="cx" id="cx" type="button" aria-label="설정 닫기">×</button></div></div>
+  <div class="cg tm">
+    <div class="cf"><label>시각 <b id="tl" style="color:var(--tx)"></b></label><input type="range" id="t" min="0" max="23.5" step="0.5"></div>
+    <button id="play">▶ 하루 재생</button>
+  </div>
+  <div class="cg one">
+    <div class="cf"><label for="tar">요금제</label><select id="tar"><option value="rtp">실시간 요금제 (변동)</option><option value="tou">시간대별 요금제 (고정)</option></select></div>
+  </div>
+  <hr>
+  <div class="cg">
+    <div class="sw"><span>피크 부하 제어 모드</span><input type="checkbox" id="dr" checked></div>
+    <div class="cf"><label>제어 강도 <b id="shl" style="color:var(--tx)"></b></label><input type="range" id="shed" min="0" max="100" step="10" value="70"></div>
+  </div>
+  <p class="hint">피크 타임(17–22시)에 선택한 기기의 사용량을 줄이고, 줄인 에너지의 60%를 23시 이후 경부하 시간으로 이월합니다.</p>
+</aside>
+</div>
+<button class="fab" id="fab" type="button" aria-expanded="false" aria-controls="ctrl">⚙ 설정</button>
+</div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const N=48,DT=.5,PK=[17,22],CAP=10,PM=3,EF=.95,SELL=90;
+const DEV=[{k:'ac',n:'냉난방',s:17,e:23,kw:1.2},{k:'ev',n:'EV 충전',s:18,e:24,kw:1.4},{k:'dry',n:'건조기',s:19,e:21.5,kw:.8}];
+const now=new Date();
+const S={t:now.getHours()+(now.getMinutes()>=30?.5:0),cloud:85,wind:70,tar:'rtp',dr:true,shed:70,dev:{ac:true,ev:true,dry:true},gen:{},pv:null};
+const $=id=>document.getElementById(id);
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const f=(n,d=0)=>n.toLocaleString('ko-KR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const L=Array.from({length:N},(_,i)=>String(Math.floor(i*DT)).padStart(2,'0')+':'+(i%2?'30':'00'));
+const g=(h,m,s)=>Math.exp(-((h-m)**2)/(2*s*s));
+const pvAt=h=>h<6||h>19?0:5*Math.pow(Math.max(0,Math.sin(Math.PI*(h-6)/13)),1.6);
+const GEN=[],genAt=(h,only)=>GEN.reduce((a,d)=>a+((!only||d.k===only)&&S.gen[d.k]&&h>=d.s&&h<d.e?d.kw*(d.irr?S.cloud/100:1)*(d.wind?S.wind/100:1):0),0);
+const baseAt=h=>Math.max(.25,.4+g(h,8,1.3)+.5*g(h,13,2)+1.1*g(h,20,1.8)+.08*Math.sin(h*7.3));
+const priceAt=h=>{const b=(h>=23||h<9)?100:(h>=17&&h<22)?260:160;
+  return S.tar==='rtp'?Math.round(b*(1+.16*Math.sin(h*1.7+1)+.09*Math.sin(h*4.1))):b};
+
+function sim(o){
+  const r={pv:[],gn:[],ld:[],g:[],bp:[],soc:[],cum:[],pr:[]};
+  let shifted=0;
+  for(let i=0;i<N;i++){const h=i*DT;let l=baseAt(h);
+    for(const d of DEV){if(h>=d.s&&h<d.e){let k=d.kw;
+      if(o.dr&&S.dev[d.k]&&h>=PK[0]&&h<PK[1]){const c=k*S.shed/100;k-=c;shifted+=c*DT*.6}
+      l+=k}}
+    r.ld.push(l);r.pr.push(priceAt(h))}
+  for(let i=46;i<N;i++)r.ld[i]+=shifted/(2*DT);
+  const avg=r.pr.reduce((a,b)=>a+b,0)/N;
+  let soc=50,cum=0;
+  for(let i=0;i<N;i++){
+    const pv=o.pv&&S.pv&&S.pv.on?pvAt(i*DT)*S.cloud/100*S.pv.kw/5:0,gn=o.gen?genAt(i*DT,o.only):0,l=r.ld[i],pr=r.pr[i],net=pv+gn-l;let bp=0;
+    if(o.ess){
+      if(net>0)bp=Math.min(net,PM,(95-soc)/100*CAP/DT/EF);
+      else if(pr>=avg*1.1)bp=-Math.min(-net,PM,Math.max(0,(soc-10)/100*CAP/DT*EF));
+      else if(pr<=avg*.8&&soc<50)bp=Math.min(PM,(50-soc)/100*CAP/DT/EF);
+    }
+    soc+=(bp>0?bp*EF:bp/EF)*DT/CAP*100;
+    const gr=l-pv-gn+bp;cum+=gr>0?gr*DT*pr:gr*DT*SELL;
+    r.pv.push(pv);r.gn.push(gn);r.g.push(gr);r.bp.push(bp);r.soc.push(soc);r.cum.push(cum)}
+  r.tot=cum;
+  r.exp=r.g.reduce((a,b)=>a+Math.max(-b,0)*DT,0);
+  r.pvT=r.pv.reduce((a,b)=>a+b*DT,0);
+  r.pkG=Math.max(...r.g.filter((_,i)=>i*DT>=PK[0]&&i*DT<PK[1]));
+  return r}
+
+const GCOL=['#862e9c','#e8590c','#2b3a55','#2b8a3e','#364fc7','#868e96'];
+const nextCol=()=>{const used=new Set([...GEN.map(d=>d.col),...TPL0.map(t=>t.col)]);return GCOL.find(c=>!used.has(c))||GCOL[GEN.length%GCOL.length]};
+let C={};
+function build(){
+  Object.values(C).forEach(c=>c.destroy());
+  const mu=css('--mu');
+  Chart.defaults.color=mu;Chart.defaults.borderColor=css('--bd');
+  Chart.defaults.font.family=getComputedStyle(document.body).fontFamily;
+  const pk=css('--pk');
+  const plug={id:'mk',beforeDraw(c){const a=c.chartArea,s=c.scales.x;if(!a||!s)return;const x0=s.getPixelForValue(PK[0]/DT),x1=s.getPixelForValue(PK[1]/DT),x=c.ctx;
+    x.save();x.fillStyle=pk;x.fillRect(x0,a.top,x1-x0,a.bottom-a.top);x.restore()},
+  afterDraw(c){const a=c.chartArea,s=c.scales.x;if(!a||!s)return;const x=s.getPixelForValue(S.t/DT),k=c.ctx;
+    k.save();k.strokeStyle=css('--tx');k.lineWidth=1.5;k.setLineDash([5,4]);k.beginPath();k.moveTo(x,a.top);k.lineTo(x,a.bottom);k.stroke();k.restore()}};
+  const xs={ticks:{autoSkip:false,maxRotation:0,callback:(v,i)=>i%4===0?i/2+'시':''},grid:{display:false}};
+  const base=(yt,extra={})=>({responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:'index',intersect:false},
+    plugins:{legend:{labels:{boxWidth:9,boxHeight:9,usePointStyle:true,pointStyle:'circle'}},tooltip:{callbacks:{title:it=>L[it[0].dataIndex]}}},
+    scales:Object.assign({x:xs,y:{title:{display:true,text:yt}}},extra)});
+  const ln=(label,color,o={})=>Object.assign({label,data:[],borderColor:color,pointRadius:0,tension:.3,borderWidth:2},o);
+  C.c1=new Chart($('c1'),{type:'line',data:{labels:L,datasets:[
+    ln('태양광 발전',css('--pv'),{fill:true,backgroundColor:css('--pv')+'33'}),
+    ln('부하(제어 후)',css('--ld')),
+    ln('부하(제어 전)',css('--ld'),{borderDash:[4,4],borderWidth:1.3}),
+    {type:'bar',label:'단가(원/kWh)',data:[],yAxisID:'y2',backgroundColor:css('--gr')+'30',barPercentage:1,categoryPercentage:1,order:3}]},
+    options:base('kW',{y2:{position:'right',grid:{display:false},title:{display:true,text:'원/kWh'},min:0}}),plugins:[plug]});
+  C.c3=new Chart($('c3'),{type:'line',data:{labels:L,datasets:[
+    ln('기준(태양광·ESS 없음)',mu,{borderDash:[5,4]}),ln('적용 후 누적 비용',css('--ok'),{borderWidth:2.5,fill:'-1',backgroundColor:css('--ok')+'22'})]},
+    options:base('누적 비용(원)'),plugins:[plug]});
+  render()}
+
+function render(){
+  markTpl();$('sun').hidden=!(S.pv||GEN.some(d=>d.irr));$('wsun').hidden=!GEN.some(d=>d.wind);$('wl').textContent=S.wind+'%';
+  const A=sim({pv:0,gen:0,ess:0,dr:0}),B=sim({pv:1,gen:0,ess:0,dr:0}),G=sim({pv:1,gen:1,ess:0,dr:0}),Cc=sim({pv:1,gen:1,ess:1,dr:0}),D=sim({pv:1,gen:1,ess:1,dr:S.dr});
+  const i=Math.round(S.t/DT)%N,h=i*DT,isPk=h>=PK[0]&&h<PK[1];
+  const sv=A.tot-D.tot,pvS=A.tot-B.tot,genS=B.tot-G.tot,essS=G.tot-Cc.tot,drS=Cc.tot-D.tot;
+  const sofar=A.cum[i]-D.cum[i],bp=D.bp[i],gr=D.g[i];
+  $('tl').textContent=L[i];$('t').value=S.t;
+  $('cl').textContent=S.cloud+'%';$('shl').textContent=S.shed+'%';
+  
+  const kp=(c,t,v,u,s)=>'<div class="k" style="--c:'+c+'"><small>'+t+'</small><b>'+v+'<i>'+u+'</i></b><em>'+s+'</em></div>';
+  $('kpis').innerHTML=
+    (S.pv||GEN.length?kp('var(--pv)','발전',f(D.pv[i]+D.gn[i],2),'kW','오늘 총 '+f(D.pvT+D.gn.reduce((a,b)=>a+b*DT,0),1)+' kWh'):'')+
+    kp('var(--ld)','부하 수요',f(D.ld[i],2),'kW','제어 전 '+f(Cc.ld[i],2)+' kW')+
+    kp('var(--ok)','배터리 SOC',f(D.soc[i]),'%',bp>.05?'충전 중':bp<-.05?'방전 중':'대기')+
+    kp('var(--gr)','현재 단가',f(D.pr[i]),'원/kWh',isPk?'피크 요금 구간':'일반 구간');
+  const col=bp>.05?'var(--ok)':bp<-.05?'var(--dc)':'var(--mu)';
+  $('fill').style.width=D.soc[i]+'%';$('fill').style.setProperty('--c',col);$('soc').textContent=f(D.soc[i])+'%';
+  const chg=D.bp.reduce((a,b)=>a+Math.max(b,0)*DT,0),dis=D.bp.reduce((a,b)=>a+Math.max(-b,0)*DT,0);
+  const it=(t,v,c)=>'<div><small>'+t+'</small><b'+(c?' style="color:'+c+'"':'')+'>'+v+'</b></div>';
+  $('bs').innerHTML=it('상태',bp>.05?'▲ 충전 중':bp<-.05?'▼ 방전 중':'● 대기',col)+
+    it('충·방전 전력',(bp>0?'+':'')+f(bp,2)+' kW')+
+    it('저장 에너지',f(D.soc[i]*CAP/100,1)+' / '+CAP+' kWh')+
+    it('동작 사유',bp>.05&&D.pv[i]+D.gn[i]>D.ld[i]?'발전 잉여 충전':bp>.05?'저가 시간대 충전':bp<-.05?'고단가 시간대 부하 지원':'조건 대기')+
+    it('오늘 충전 / 방전',f(chg,1)+' / '+f(dis,1)+' kWh');
+  const pos=D.pr, cl=n=>n;
+  C.c1.data.datasets[0].data=D.pv;C.c1.data.datasets[1].data=D.ld;C.c1.data.datasets[2].data=Cc.ld;C.c1.data.datasets[3].data=pos;C.c1.data.datasets[0].hidden=!S.pv;C.c1.data.datasets.length=4;GEN.forEach((g,j)=>C.c1.data.datasets.push({label:g.n,data:Array.from({length:N},(_,i)=>{const h=i*DT;return S.gen[g.k]&&h>=g.s&&h<g.e?g.kw*(g.irr?S.cloud/100:1)*(g.wind?S.wind/100:1):0}),borderColor:g.col||GCOL[j%GCOL.length],pointRadius:0,borderWidth:2,stepped:true,tension:0}));C.c1.options.plugins.legend.labels.filter=it=>it.datasetIndex!==0||!!S.pv;
+  C.c3.data.datasets[0].data=A.cum;C.c3.data.datasets[1].data=D.cum;
+  Object.values(C).forEach(c=>c.update('none'));
+  $('sum').innerHTML='<div><p>하루 예상 절감액</p><big>'+f(sv)+'원</big></div>'+
+    '<div><p>절감률</p><b style="font-size:1.4rem">'+f(sv/A.tot*100,1)+'%</b></div>'+
+    '<div><p>월 환산(30일)</p><b style="font-size:1.4rem">'+f(sv*30)+'원</b></div>'+
+    '<div><p>현재 시각까지 절감</p><b style="font-size:1.4rem">'+f(sofar)+'원</b></div>'+
+    '<div><p>기준 → 적용 후</p><b style="font-size:1.1rem">'+f(A.tot)+' → '+f(D.tot)+'원</b></div>'+
+    '<div><p>자가소비율 / 피크 수전 저감</p><b style="font-size:1.1rem">'+f(B.pvT?(1-B.exp/B.pvT)*100:0)+'% / '+f(A.pkG-D.pkG,1)+' kW</b></div>';
+  const graw=GEN.map(g=>B.tot-sim({pv:1,gen:1,only:g.k,ess:0,dr:0}).tot),gsum=graw.reduce((a,b)=>a+b,0);
+  const gparts=GEN.map((g,j)=>[g.n,g.col||GCOL[j%GCOL.length],Math.abs(gsum)>1e-9?graw[j]/gsum*genS:genS/GEN.length]);
+  const parts=[...(S.pv?[['태양광 발전','var(--pv)',pvS]]:[]),...gparts,['ESS 차익','var(--ok)',essS],['피크 부하 제어','var(--dc)',drS]];
+  const tot=parts.reduce((a,p)=>a+Math.max(p[2],0),0)||1;
+  $('bd').innerHTML=parts.map(p=>'<i style="width:'+Math.max(p[2],0)/tot*100+'%;background:'+p[1]+'"></i>').join('');
+  $('lg').innerHTML=parts.map(p=>'<span><u style="background:'+p[1]+'"></u>'+p[0]+' <b>'+f(p[2])+'원</b></span>').join('');
+}
+
+const fh=h=>Math.floor(h)+(h%1?':30':'');
+const esc=s=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function devs(){$('ltpl').innerHTML=DEV.map(d=>'<button type="button" class="'+(S.dev[d.k]?'on':'')+' u" aria-pressed="'+!!S.dev[d.k]+'" data-k="'+d.k+'"><span class="nm">'+esc(d.n)+'</span><span class="x" data-x="'+d.k+'" role="button" title="삭제" aria-label="'+esc(d.n)+' 삭제">×</span>'+'<small>'+fh(d.s)+'–'+fh(d.e)+'시 · '+f(d.kw,1)+' kW</small></button>').join('')}
+devs();
+$('ltpl').addEventListener('click',e=>{const x=e.target.dataset.x;if(x){DEV.splice(DEV.findIndex(d=>d.k===x),1);delete S.dev[x];devs();restoreBtn();render();return}const b=e.target.closest('button');if(!b)return;S.dev[b.dataset.k]=!S.dev[b.dataset.k];devs();render()});
+let uid=0;
+$('da').onclick=()=>{const n=$('dn').value.trim(),s=Math.round($('ds').value*2)/2,e=Math.round($('de').value*2)/2,kw=+$('dk').value,m=$('dm');
+  const err=!n?'기기 이름을 입력하세요.':($('ds').value===''||$('de').value==='')?'사용 시작·종료 시각을 입력하세요.':(s<0||s>23.5)?'시작 시각은 0–23.5 사이여야 합니다.':!(e>s&&e<=24)?'종료 시각은 시작보다 늦고 24 이하여야 합니다. 자정을 넘기면 두 개로 나눠 추가하세요.':!(kw>=.1&&kw<=10)?'사용 전력은 0.1–10 kW 사이로 입력하세요.':DEV.length>=12?'기기는 최대 12개까지 추가할 수 있습니다.':'';
+  if(err){m.textContent=err;return}
+  const k='u'+(++uid);DEV.push({k,n,s,e,kw,u:1});S.dev[k]=true;
+  m.textContent=(e<=PK[0]||s>=PK[1])?'추가했습니다. 피크 타임(17–22시)과 겹치지 않아 제어 효과는 없습니다.':'추가했습니다. 피크 시간대 사용분이 제어 대상에 포함됩니다.';
+  ['dn','ds','de','dk'].forEach(id=>$(id).value='');devs();render()};
+$('t').oninput=e=>{S.t=+e.target.value;render()};
+$('cloud').oninput=e=>{S.cloud=+e.target.value;render()};
+$('wind').oninput=e=>{S.wind=+e.target.value;render()};
+$('shed').oninput=e=>{S.shed=+e.target.value;render()};
+$('dr').onchange=e=>{S.dr=e.target.checked;render()};
+$('tar').onchange=e=>{S.tar=e.target.value;render()};
+let tm=null;
+$('play').onclick=()=>{if(tm){clearInterval(tm);tm=null;$('play').textContent='▶ 하루 재생';return}
+  $('play').textContent='❚❚ 일시정지';tm=setInterval(()=>{S.t=(S.t+DT)%24;render()},500)};
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',build);
+$('at').onclick=()=>{const o=$('af').hidden;$('af').hidden=!o;$('at').setAttribute('aria-expanded',o);$('at').textContent=o?'－ 입력창 닫기':'＋ 부하 직접 추가';if(o)$('af').scrollIntoView({block:'nearest'})};
+function renderGens(){$('gens').innerHTML=GEN.filter(d=>!d.tpl).map(d=>'<label><i class="dot" style="background:'+d.col+'"></i>'+esc(d.n)+'<span>'+fh(d.s)+'–'+fh(d.e)+'시 · '+f(d.kw,1)+' kW</span><button type="button" class="x" data-gx="'+d.k+'" title="삭제" aria-label="'+esc(d.n)+' 삭제">×</button></label>').join('')}
+$('gens').addEventListener('change',e=>{if(e.target.dataset.p&&S.pv){S.pv.on=e.target.checked;render()}if(e.target.dataset.g){S.gen[e.target.dataset.g]=e.target.checked;render()}});
+$('gens').addEventListener('click',e=>{if(e.target.dataset.px){S.pv=null;renderGens();render();return}const k=e.target.dataset.gx;if(!k)return;GEN.splice(GEN.findIndex(d=>d.k===k),1);delete S.gen[k];renderGens();render()});
+let gid=0;
+$('ga').onclick=()=>{const n=$('gn').value.trim(),s=Math.round($('gs').value*2)/2,e=Math.round($('ge').value*2)/2,kw=+$('gk').value,m=$('gm');
+  const err=!n?'발전원 이름을 입력하세요.':($('gs').value===''||$('ge').value==='')?'발전 시작·종료 시각을 입력하세요.':(s<0||s>23.5)?'시작 시각은 0–23.5 사이여야 합니다.':!(e>s&&e<=24)?'종료 시각은 시작보다 늦고 24 이하여야 합니다. 자정을 넘기면 두 개로 나눠 추가하세요.':!(kw>=.1&&kw<=20)?'출력은 0.1–20 kW 사이로 입력하세요.':GEN.length>=6?'발전원은 최대 6개까지 추가할 수 있습니다.':'';
+  if(err){m.textContent=err;return}
+  const k='g'+(++gid);GEN.push({k,n,s,e,kw,col:nextCol()});S.gen[k]=true;
+  m.textContent='주로 발전하는 시간대(30분 단위)와 출력(kW)을 입력하세요.';
+  ['gn','gs','ge','gk'].forEach(id=>$(id).value='');renderGens();render()};
+$('gt').onclick=()=>{const o=$('gf').hidden;$('gf').hidden=!o;$('gt').setAttribute('aria-expanded',o);$('gt').textContent=o?'－ 입력창 닫기':'＋ 발전원 직접 추가';if(o)$('gf').scrollIntoView({block:'nearest'})};
+const TPL0=[{n:'태양광',s:6,e:19,kw:5,solar:1,col:'#f2a31b'},{n:'태양열',s:9,e:17,kw:1.5,irr:1,col:'#d6336c'},{n:'풍력',s:0,e:8,kw:1.2,wind:1,col:'#1098ad'},{n:'지열',s:0,e:24,kw:1,col:'#5c7080'},{n:'연료전지',s:0,e:24,kw:1,col:'#6fae4c'}];
+let TPL=TPL0.slice();
+const DEV0=DEV.map(d=>({...d}));
+function restoreBtn(){$('rs').hidden=!(TPL.length<TPL0.length||DEV0.some(d=>!DEV.some(x=>x.k===d.k)))}
+function tplRender(){$('tpl').innerHTML=TPL.map((t,i)=>'<button type="button" class="u" data-t="'+i+'"><span class="nm"><i class="dot" style="background:'+t.col+'"></i>'+esc(t.n)+'</span><span class="x" data-tx="'+i+'" role="button" title="삭제" aria-label="'+esc(t.n)+' 삭제">×</span><small>'+fh(t.s)+'–'+fh(t.e)+'시 · '+f(t.kw,1)+' kW</small></button>').join('');restoreBtn()}
+tplRender();
+$('tpl').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const t=TPL[+b.dataset.t],m=$('tm');if(e.target.dataset.tx!==undefined){if(t.solar)S.pv=null;else{for(let j=GEN.length-1;j>=0;j--)if(GEN[j].tpl&&GEN[j].n===t.n){delete S.gen[GEN[j].k];GEN.splice(j,1)}}TPL.splice(+b.dataset.t,1);m.textContent='';tplRender();renderGens();render();return}
+  if(t.solar){if(S.pv){S.pv=null;m.textContent=''}else{S.pv={kw:t.kw,on:true};m.textContent=''}renderGens();render();return}
+  const j=GEN.findIndex(d=>d.tpl&&d.n===t.n);if(j>=0){delete S.gen[GEN[j].k];GEN.splice(j,1);m.textContent='';renderGens();render();return}
+  if(GEN.length>=6){m.textContent='발전원은 최대 6개까지 추가할 수 있습니다.';return}
+  const k='g'+(++gid);GEN.push({k,n:t.n,s:t.s,e:t.e,kw:t.kw,irr:t.irr,wind:t.wind,col:t.col,tpl:1});S.gen[k]=true;
+  m.textContent='';renderGens();render()});
+function markTpl(){document.querySelectorAll('#tpl button').forEach(b=>{const t=TPL[+b.dataset.t],on=t.solar?!!S.pv:GEN.some(d=>d.tpl&&d.n===t.n);b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)})}
+$('rs').onclick=()=>{TPL=TPL0.slice();const cust=DEV.filter(d=>d.u);DEV.length=0;DEV.push(...DEV0.map(d=>({...d})),...cust);DEV.forEach(d=>{if(S.dev[d.k]===undefined)S.dev[d.k]=true});tplRender();devs();restoreBtn();render()};
+renderGens();
+const ctrl=$('ctrl'),fab=$('fab');
+function setSH(){document.documentElement.style.setProperty('--shh',(ctrl.classList.contains('open')?ctrl.offsetHeight:0)+'px')}
+function sheet(o){ctrl.classList.toggle('open',o);fab.setAttribute('aria-expanded',o);fab.textContent=o?'× 닫기':'⚙ 설정';setSH()}
+if(window.ResizeObserver)new ResizeObserver(setSH).observe(ctrl);
+window.addEventListener('resize',setSH);
+fab.onclick=()=>sheet(!ctrl.classList.contains('open'));
+$('cx').onclick=()=>sheet(false);
+$('se').onclick=()=>{const o=!document.body.classList.contains('editing');document.body.classList.toggle('editing',o);$('se').setAttribute('aria-pressed',o);$('gcard').classList.toggle('fold',!o);setTimeout(()=>window.dispatchEvent(new Event('resize')),30);if(o){if(matchMedia('(max-width:900px)').matches)sheet(false);document.querySelector('.eds').scrollIntoView({block:'nearest',behavior:'smooth'})}};
+$('sd').onclick=()=>$('se').click();
+document.addEventListener('keydown',e=>{if(e.key==='Escape')sheet(false)});
+/* ---- 새로 고침해도 입력한 데이터 유지 (이 브라우저에 저장) ---- */
+const SK='mg-dashboard-v1';
+let dbDoc=null,dbT=0;
+function saveState(){const j=snap();try{localStorage.setItem(SK,j)}catch(e){}if(dbDoc){clearTimeout(dbT);dbT=setTimeout(()=>{try{dbDoc.set({json:j,at:Date.now()}).catch(()=>{})}catch(e){}},600)}}
+function snap(){return JSON.stringify({DEV,dev:S.dev,GEN,gen:S.gen,pv:S.pv,tpl:TPL.map(t=>t.n),uid,gid,cloud:S.cloud,wind:S.wind,tar:S.tar,dr:S.dr,shed:S.shed,t:S.t})}
+function applyState(v){if(!v||typeof v!=='object')return false;
+  try{
+    if(Array.isArray(v.DEV)){DEV.length=0;DEV.push(...v.DEV);S.dev=v.dev||{};DEV.forEach(d=>{if(S.dev[d.k]===undefined)S.dev[d.k]=true})}
+    if(Array.isArray(v.GEN)){GEN.length=0;GEN.push(...v.GEN);S.gen=v.gen||{}}
+    S.pv=v.pv||null;
+    if(Array.isArray(v.tpl))TPL=TPL0.filter(t=>v.tpl.includes(t.n));
+    uid=+v.uid||uid;gid=+v.gid||gid;
+    ['cloud','wind','shed','t'].forEach(k=>{if(typeof v[k]==='number'){S[k]=v[k];$(k).value=v[k]}});
+    if(typeof v.dr==='boolean'){S.dr=v.dr;$('dr').checked=v.dr}
+    if(typeof v.tar==='string'&&[...$('tar').options].some(o=>o.value===v.tar)){S.tar=v.tar;$('tar').value=v.tar}
+    tplRender();devs();renderGens();restoreBtn();
+  }catch(e){return false}
+  return true}
+try{applyState(JSON.parse(localStorage.getItem(SK)||'null'))}catch(e){}
+{const _r=render;render=function(){_r.apply(this,arguments);saveState()}}
+(async()=>{try{
+  const [db,user]=await Promise.all([claude.use('db'),claude.use('user')]);if(!db||!user)return;
+  const id=await user.id();const doc=db.collection('data/users/'+id).doc('dashboard');
+  const r=await doc.get();let v=null;try{v=r&&(r.exists===false?null:(typeof r.data==='function'?r.data():r.data))}catch(e){}
+  dbDoc=doc;
+  if(v&&v.json){let o=null;try{o=JSON.parse(v.json)}catch(e){}if(o&&applyState(o))render()}else saveState();
+}catch(e){}})();
+build();
+</script>
+</body>
+</html>
+
+</body></html>
