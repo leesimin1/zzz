@@ -19,6 +19,14 @@ DB 기능이 있다면 [로컬 연결과 읽기·쓰기 확인](SUPABASE_SETUP.m
 
 ## 2. Vercel 프로젝트 연결과 빌드 설정
 
+현재 POLAR HOME 데모의 공개 주소는 https://polar-home.vercel.app 입니다.
+프로젝트는 `polar-home`, 프레임워크는 Next.js, Node.js는 24.x입니다.
+설치 명령은 `npm ci`, 현재 빌드 명령은 `npm run typecheck && npm run lint && npm run build`입니다.
+기존 문서·설정 파일의 서식 검사 오류가 남아 있어 현재 배포는 타입·린트·앱 빌드를 검증합니다.
+아래의 `npm run check && npm run build`는 서식 검사까지 정리한 뒤 사용할 기본 권장 설정입니다.
+실제 한전·DB 연동은 사용하지 않으며 계정과 데모 기록은 접속한 브라우저에 저장됩니다.
+`.vercelignore`는 실제 환경 파일과 로컬 자동 생성물을 배포 업로드에서 제외합니다.
+
 1. 내 프로젝트의 GitHub 저장소를 Vercel에서 가져옵니다. GitHub 연결 시 필요한 저장소만 선택하고 요청되는 접근 권한을 확인하세요.
 2. Framework Preset은 **Next.js**, Node.js는 **24**를 선택합니다.
 3. Root Directory는 package.json이 있는 실제 프로젝트 위치로 설정합니다. 저장소 루트가 프로젝트라면 기본값을 사용하고, 상위 폴더까지 저장했다면 해당 하위 폴더를 지정합니다. 폴더 이름을 고정값으로 가정하지 마세요.
