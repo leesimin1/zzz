@@ -1,4 +1,4 @@
-﻿# (앱 이름)
+﻿# (앱 이름) POLAR HOME
 
 프로젝트를 시작하기 전에 [docs/SETUP.md](docs/SETUP.md)를 먼저 읽으세요.
 
