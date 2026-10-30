@@ -2,7 +2,7 @@ node_modules/
 .next/
 .vercel/
 .git/
-.agents/
+.agents
 skills-lock.json
 src/generated_prisma
 next-env.d.ts
