@@ -1,4 +1,4 @@
-/* global DEV, S */
+/* global DEV, S, DT, sim */
 
 (() => {
   const original = document.getElementById('ltpl');
@@ -15,6 +15,36 @@
   restore.textContent = '기본 가전기기 복원';
   summary.after(restore);
   let devices = [];
+  let monthlyUsage = null;
+
+  function showMonthlyTotal(id, amount) {
+    const value = document.getElementById(id);
+    if (!value) return;
+    const unit = document.createElement('i');
+    unit.textContent = 'kWh';
+    value.replaceChildren(
+      document.createTextNode(
+        amount === null
+          ? '—'
+          : amount.toLocaleString('ko-KR', { maximumFractionDigits: 2 }),
+      ),
+      unit,
+    );
+  }
+
+  const originalRender = window.render;
+  window.render = function (...args) {
+    const result = originalRender.apply(this, args);
+    const generation = sim({ pv: 1, gen: 1, ess: 0, dr: 0 });
+    const dailyKwh =
+      generation.pvT + generation.gn.reduce((sum, kw) => sum + kw * DT, 0);
+    showMonthlyTotal(
+      'monthly-generation',
+      Math.round(dailyKwh * 30 * 100) / 100,
+    );
+    showMonthlyTotal('monthly-consumption', monthlyUsage);
+    return result;
+  };
 
   function change(command) {
     const result = window.requestDemoApplianceChange?.(command);
@@ -65,18 +95,16 @@
       card.append(toggle, remove);
       list.appendChild(card);
     }
-    const monthly = devices.reduce(
-      (sum, item) => sum + (item.enabled ? item.monthlyKwh : 0),
-      0,
-    );
-    summary.textContent = `월 합계 ${monthly.toLocaleString('ko-KR', { maximumFractionDigits: 2 })} kWh · 사용 시간과 소비전력으로 계산한 30일 기준 데모입니다. 기기를 누르면 사용 여부가 바뀌어요.`;
+    summary.textContent = `월 합계 ${(monthlyUsage ?? 0).toLocaleString('ko-KR', { maximumFractionDigits: 2 })} kWh · 사용 시간과 소비전력으로 계산한 30일 기준 데모입니다. 기기를 누르면 사용 여부가 바뀌어요.`;
   }
   window.devs = draw;
-  window.applyDemoAppliances = function (items) {
+  window.applyDemoAppliances = function (items, usage) {
     devices = items;
+    monthlyUsage = usage;
     draw();
     window.render();
   };
+  window.render();
   list.replaceChildren();
   document.getElementById('da').onclick = () => {
     const value = (id) => document.getElementById(id).value;

@@ -88,6 +88,14 @@ export default function SolarPage() {
     )?.[0] ?? original;
 
   const html = document
+    .replace(
+      '<b>724.8<i>kWh</i></b>',
+      '<b id="monthly-generation">—<i>kWh</i></b>',
+    )
+    .replace(
+      '<b>861.3<i>kWh</i></b>',
+      '<b id="monthly-consumption">—<i>kWh</i></b>',
+    )
     .replace(/const DEV=\[[^\n]*\];/, 'const DEV=[];')
     .replace('let l=baseAt(h)', 'let l=0')
     .replace(
@@ -157,6 +165,8 @@ export default function SolarPage() {
               발전량·사용량·배터리를 조절해 보세요.
               <br />
               실제 계량기와 연결되지 않은 시뮬레이션입니다.
+              <br />
+              발전량은 현재 설정을 30일로 환산한 예상치입니다.
             </p>
           </div>
           <span

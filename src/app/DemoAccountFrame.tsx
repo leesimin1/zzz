@@ -16,12 +16,15 @@ export default function DemoAccountFrame({
   className: string;
 }) {
   const { user } = useDemoUser();
-  const { devices, change } = useDemoAppliances();
+  const { devices, usage, change } = useDemoAppliances();
   const frame = useRef<HTMLIFrameElement>(null);
   function connect() {
     const content = frame.current?.contentWindow as
       | (Window & {
-          applyDemoAppliances?: (items: DemoAppliance[]) => void;
+          applyDemoAppliances?: (
+            items: DemoAppliance[],
+            monthlyUsage: number,
+          ) => void;
           requestDemoApplianceChange?: (command: unknown) => {
             ok: boolean;
             error?: string;
@@ -41,14 +44,19 @@ export default function DemoAccountFrame({
         };
       }
     };
-    content.applyDemoAppliances(devices);
+    content.applyDemoAppliances(devices, usage);
   }
   useEffect(() => {
     const content = frame.current?.contentWindow as
-      | (Window & { applyDemoAppliances?: (items: DemoAppliance[]) => void })
+      | (Window & {
+          applyDemoAppliances?: (
+            items: DemoAppliance[],
+            monthlyUsage: number,
+          ) => void;
+        })
       | null;
-    content?.applyDemoAppliances?.(devices);
-  }, [devices]);
+    content?.applyDemoAppliances?.(devices, usage);
+  }, [devices, usage]);
   if (!user) return null;
   return (
     <iframe
