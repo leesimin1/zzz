@@ -129,7 +129,7 @@ export default function MyPageFrame({ html }: { html: string }) {
         title="마이페이지와 전기요금 분석"
         srcDoc={homeHtml}
         onLoad={prepareFrame}
-        sandbox="allow-scripts allow-same-origin"
+        sandbox="allow-scripts allow-same-origin allow-top-navigation-by-user-activation"
         className="mx-auto block h-[900px] w-full max-w-lg border-0"
       />
       <dialog

@@ -1,4 +1,4 @@
-/* global GEN, S, fh, f */
+/* global GEN, S, TPL, TPL0, fh, f */
 
 (() => {
   const templates = document.getElementById('tpl');
@@ -12,6 +12,27 @@
   custom.className = 'tpl';
   custom.setAttribute('role', 'group');
   custom.setAttribute('aria-label', '직접 추가한 발전원');
+
+  const existingRestore = document.getElementById('rs');
+  const sourceForm = document.querySelector('.gsec .add');
+  if (existingRestore && sourceForm) {
+    const restoreSources = document.createElement('button');
+    restoreSources.id = 'restore-sources';
+    restoreSources.type = 'button';
+    restoreSources.className = 'at';
+    restoreSources.textContent = '발전원 기본 복원';
+    restoreSources.onclick = () => existingRestore.click();
+    const restoreRow = document.createElement('div');
+    restoreRow.appendChild(restoreSources);
+    sourceForm.appendChild(restoreRow);
+
+    const originalRestoreBtn = window.restoreBtn;
+    window.restoreBtn = function () {
+      originalRestoreBtn();
+      restoreSources.hidden = TPL.length >= TPL0.length;
+    };
+    window.restoreBtn();
+  }
 
   window.renderGens = function () {
     custom.replaceChildren();

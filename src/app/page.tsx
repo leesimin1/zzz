@@ -13,7 +13,7 @@ import {
 import { DemoBillCard } from './DemoElectricityBill';
 
 export const metadata: Metadata = {
-  title: 'POLAR HOME | 나의 작은 절약',
+  title: 'POLAR HOME',
   description: '에너지를 아끼고 북극곰의 집을 함께 지켜요.',
 };
 

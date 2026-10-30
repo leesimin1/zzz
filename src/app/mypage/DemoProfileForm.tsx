@@ -50,7 +50,7 @@ export default function DemoProfileForm({
     <div className="p-6 text-[#17365e]">
       <div className="flex items-center justify-between gap-3">
         <h2 id="demo-profile-title" className="text-xl font-extrabold">
-          내 정보 · 우리 집
+          내 정보
         </h2>
         <button
           type="button"

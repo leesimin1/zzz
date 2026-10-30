@@ -10,7 +10,7 @@ import MainNavigation from '../MainNavigation';
 import { DemoBillSummary } from '../DemoElectricityBill';
 
 export const metadata: Metadata = {
-  title: '우리 집 그래프 | POLAR HOME',
+  title: 'POLAR HOME',
   description:
     '태양광 발전량, 전력 사용량과 배터리를 조절하는 에너지 시뮬레이션',
 };

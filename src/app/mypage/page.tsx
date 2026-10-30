@@ -15,6 +15,11 @@ export default function MyPage() {
   );
 
   const html = withPolarBearAssets(original)
+    .replace(/<span class="stage-pill">[\s\S]*?<\/span>/, '')
+    .replace(
+      /<div class="brand">([\s\S]*?)<\/div>/,
+      '<a class="brand" href="/" target="_top" aria-label="POLAR HOME 메인화면으로 이동">$1</a>',
+    )
     .replace(
       /<article class="card toggle-line">[\s\S]*?id="easyToggle"[\s\S]*?<\/article>/,
       '',
@@ -27,8 +32,18 @@ export default function MyPage() {
       /<button class="menu-row" onclick="openDetail\('(missions|quiz)'\)">[\s\S]*?<\/button>\s*/g,
       '',
     )
-    .replace('</head>', '<style>.tabbar{display:none!important}</style></head>')
-    .replace('</body>', "<script>showScreen('mypage');</script></body>");
+    .replace(
+      /<button class="quick" onclick="openDetail\('homeInfo'\)">[\s\S]*?<\/button>\s*/g,
+      '',
+    )
+    .replace(
+      '</head>',
+      '<style>.tabbar{display:none!important}a.brand{display:inline-flex;align-items:center;min-height:44px;text-decoration:none;border-radius:8px}#mypage .quick-grid{grid-template-columns:repeat(3,1fr)}</style></head>',
+    )
+    .replace(
+      '</body>',
+      '<script src="/mypage-quiz.js"></script><script>showScreen(\'mypage\');</script></body>',
+    );
 
   return (
     <main className="min-h-screen bg-[#eaf6fd] pb-28 text-[#17365e]">
