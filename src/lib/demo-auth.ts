@@ -1,79 +1,146 @@
-'use client';
+﻿'use client';
 
 import { z } from 'zod';
+import {
+  credentialsSchema,
+  demoUserSchema,
+  registrationSchema,
+  profileSchema,
+  type DemoUser,
+} from './account-schema';
+export { demoUserSchema, type DemoUser } from './account-schema';
 
-const ACCOUNTS_KEY = 'polar-demo-accounts-v1';
-const SESSION_KEY = 'polar-demo-session-v1';
-const CHANGE_EVENT = 'polar-demo-auth-change';
+const LEGACY_KEY = 'polar-demo-accounts-v1';
+const SYNC_KEY = 'polar-account-session-sync-v2';
+const listeners = new Set<() => void>();
+let snapshot = '';
+let ready = false;
+let version = 0;
+let refreshSerial = 0;
+let pending = 0;
+let timer: ReturnType<typeof setInterval> | undefined;
 
-export const demoUserSchema = z.object({
-  name: z.string().trim().min(1).max(40),
-  email: z.string().trim().toLowerCase().email().max(254),
-  address: z.string().trim().max(200).default(''),
+const payloadSchema = z.object({
+  user: demoUserSchema.nullable().optional(),
+  requiresEmailVerification: z.boolean().optional(),
+  error: z.string().optional(),
+  code: z.string().optional(),
 });
-
-export type DemoUser = z.infer<typeof demoUserSchema>;
-
-const profileSchema = z.object({
-  name: demoUserSchema.shape.name,
-  address: z.string().trim().min(5).max(200),
-});
-
-const credentialsSchema = z.object({
-  email: demoUserSchema.shape.email,
-  password: z.string().min(10).max(128),
-});
-
-const accountSchema = demoUserSchema.extend({
-  salt: z.string().regex(/^[a-f0-9]{32}$/),
-  hash: z.string().regex(/^[a-f0-9]{64}$/),
-});
-
-function readAccounts() {
+class AccountError extends Error {
+  constructor(
+    message: string,
+    readonly code = 'AUTH_ERROR',
+  ) {
+    super(message);
+  }
+}
+function emit() {
+  for (const callback of listeners) callback();
+}
+function setUser(user: DemoUser | null) {
+  snapshot = user ? JSON.stringify(user) : '';
+  ready = true;
+  emit();
+}
+function publish() {
   try {
-    return z
-      .array(accountSchema)
-      .max(50)
-      .parse(JSON.parse(localStorage.getItem(ACCOUNTS_KEY) ?? '[]'));
+    localStorage.setItem(SYNC_KEY, `${Date.now()}:${Math.random()}`);
   } catch {
-    throw new Error(
-      '브라우저의 가입 기록을 읽을 수 없습니다. 브라우저 저장 설정을 확인해 주세요.',
+    /* Cookie login remains usable without local storage. */
+  }
+}
+async function api(action: string, body?: unknown, method = 'POST') {
+  let response: Response;
+  try {
+    response = await fetch(`/api/auth/${action}`, {
+      method,
+      credentials: 'same-origin',
+      cache: 'no-store',
+      headers:
+        body === undefined ? undefined : { 'Content-Type': 'application/json' },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+  } catch {
+    throw new AccountError(
+      '서버에 연결하지 못했습니다. 인터넷 연결을 확인해 주세요.',
     );
   }
-}
-
-function hex(bytes: Uint8Array) {
-  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join(
-    '',
+  const value = payloadSchema.safeParse(
+    await response.json().catch(() => null),
   );
+  if (!value.success)
+    throw new AccountError(
+      '로그인 응답을 확인하지 못했습니다. 다시 시도해 주세요.',
+    );
+  if (!response.ok)
+    throw new AccountError(
+      value.data.error || '요청을 처리하지 못했습니다.',
+      value.data.code,
+    );
+  return value.data;
 }
-
-async function passwordHash(password: string, salt: string) {
-  if (!globalThis.crypto?.subtle) {
-    throw new Error('localhost 또는 HTTPS 주소에서 실행해 주세요.');
+async function refresh() {
+  if (pending) return;
+  const serial = ++refreshSerial,
+    principal = version;
+  try {
+    const result = await api('session', undefined, 'GET');
+    if (serial === refreshSerial && principal === version && !pending)
+      setUser(result.user ?? null);
+  } catch {
+    if (serial === refreshSerial && principal === version && !pending)
+      setUser(null);
   }
+}
+function onFocus() {
+  void refresh();
+}
+function onVisibility() {
+  if (!document.hidden) void refresh();
+}
+function onStorage(event: StorageEvent) {
+  if (event.key === SYNC_KEY) void refresh();
+}
 
-  const key = await crypto.subtle.importKey(
-    'raw',
-    new TextEncoder().encode(password),
-    'PBKDF2',
-    false,
-    ['deriveBits'],
-  );
-  const saltBytes = Uint8Array.from({ length: salt.length / 2 }, (_, index) =>
-    parseInt(salt.slice(index * 2, index * 2 + 2), 16),
-  );
-  const bits = await crypto.subtle.deriveBits(
-    {
-      name: 'PBKDF2',
-      hash: 'SHA-256',
-      salt: saltBytes,
-      iterations: 600000,
-    },
-    key,
-    256,
-  );
-  return hex(new Uint8Array(bits));
+async function legacyAccount(email: string, password: string) {
+  try {
+    const schema = z
+      .array(
+        demoUserSchema.extend({
+          salt: z.string().regex(/^[a-f0-9]{32}$/),
+          hash: z.string().regex(/^[a-f0-9]{64}$/),
+        }),
+      )
+      .max(50);
+    const parsed = schema.safeParse(
+      JSON.parse(localStorage.getItem(LEGACY_KEY) || '[]'),
+    );
+    const account = parsed.success
+      ? parsed.data.find((item) => item.email === email)
+      : undefined;
+    if (!account) return null;
+    const key = await crypto.subtle.importKey(
+      'raw',
+      new TextEncoder().encode(password),
+      'PBKDF2',
+      false,
+      ['deriveBits'],
+    );
+    const salt = Uint8Array.from({ length: 16 }, (_, i) =>
+      parseInt(account.salt.slice(i * 2, i * 2 + 2), 16),
+    );
+    const bits = await crypto.subtle.deriveBits(
+      { name: 'PBKDF2', hash: 'SHA-256', salt, iterations: 600000 },
+      key,
+      256,
+    );
+    const hash = Array.from(new Uint8Array(bits), (value) =>
+      value.toString(16).padStart(2, '0'),
+    ).join('');
+    return hash === account.hash ? account : null;
+  } catch {
+    return null;
+  }
 }
 
 export async function registerDemo(input: {
@@ -82,147 +149,130 @@ export async function registerDemo(input: {
   password: string;
   address: string;
 }) {
-  const userResult = demoUserSchema.safeParse(input);
-  const profileResult = profileSchema.safeParse(input);
-  const credentialsResult = credentialsSchema.safeParse(input);
-
-  if (
-    !userResult.success ||
-    !profileResult.success ||
-    !credentialsResult.success
-  ) {
-    throw new Error(
-      '이름·이메일·집주소(5~200자)를 확인하고 비밀번호를 10~128자로 입력해 주세요.',
-    );
-  }
-
-  const user = userResult.data;
-  const salt = hex(crypto.getRandomValues(new Uint8Array(16)));
-  const hash = await passwordHash(credentialsResult.data.password, salt);
-  const accounts = readAccounts();
-
-  if (accounts.some((account) => account.email === user.email)) {
-    throw new Error('이미 가입한 이메일입니다. 로그인해 주세요.');
-  }
-  if (accounts.length >= 50) {
-    throw new Error('이 브라우저의 데모 계정 생성 한도에 도달했습니다.');
-  }
-
+  const parsed = registrationSchema.safeParse(input);
+  if (!parsed.success)
+    throw new Error('이름·집주소·이메일과 비밀번호(10~128자)를 확인해 주세요.');
+  const ticket = ++version;
+  refreshSerial++;
+  pending++;
+  setUser(null);
   try {
-    localStorage.setItem(
-      ACCOUNTS_KEY,
-      JSON.stringify([...accounts, { ...user, salt, hash }]),
-    );
-  } catch {
-    throw new Error(
-      '가입 정보를 저장하지 못했습니다. 저장 설정을 확인해 주세요.',
-    );
-  }
-}
-
-export async function loginDemo(input: { email: string; password: string }) {
-  const result = credentialsSchema.safeParse(input);
-  if (!result.success) {
-    throw new Error('이메일과 비밀번호를 확인해 주세요.');
-  }
-
-  const account = readAccounts().find(
-    (item) => item.email === result.data.email,
-  );
-
-  if (
-    !account ||
-    (await passwordHash(result.data.password, account.salt)) !== account.hash
-  ) {
-    throw new Error('이메일 또는 비밀번호가 맞지 않습니다.');
-  }
-
-  try {
-    sessionStorage.setItem(
-      SESSION_KEY,
-      JSON.stringify({
-        name: account.name,
-        email: account.email,
-        address: account.address,
-      }),
-    );
-  } catch {
-    throw new Error('로그인 상태를 저장하지 못했습니다.');
-  }
-  window.dispatchEvent(new Event(CHANGE_EVENT));
-}
-
-export function logoutDemo() {
-  sessionStorage.removeItem(SESSION_KEY);
-  window.dispatchEvent(new Event(CHANGE_EVENT));
-}
-
-export function updateDemoProfile(input: { name: string; address: string }) {
-  const profile = profileSchema.safeParse(input);
-  if (!profile.success) {
-    throw new Error('이름은 1~40자, 집주소는 5~200자로 입력해 주세요.');
-  }
-  let current: DemoUser;
-  try {
-    current = demoUserSchema.parse(JSON.parse(demoSessionSnapshot()));
-  } catch {
-    throw new Error('로그인 후 정보를 수정해 주세요.');
-  }
-  const accounts = readAccounts();
-  const index = accounts.findIndex(
-    (account) => account.email === current.email,
-  );
-  if (index < 0)
-    throw new Error('가입 정보를 찾지 못했습니다. 다시 로그인해 주세요.');
-  const user = { ...current, ...profile.data };
-  accounts[index] = { ...accounts[index], ...profile.data };
-  const previousAccounts = localStorage.getItem(ACCOUNTS_KEY);
-  const previousSession = demoSessionSnapshot();
-  try {
-    localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts));
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify(user));
-  } catch {
-    // Restore the previous profile when either storage write fails.
-    try {
-      if (previousAccounts !== null)
-        localStorage.setItem(ACCOUNTS_KEY, previousAccounts);
-      sessionStorage.setItem(SESSION_KEY, previousSession);
-    } catch {
-      throw new Error(
-        '저장 공간에 접근할 수 없습니다. 브라우저 저장 설정을 확인해 주세요.',
-      );
+    const result = await api('register', parsed.data);
+    if (ticket === version) {
+      setUser(result.user ?? null);
+      publish();
     }
-    throw new Error('정보를 저장하지 못했습니다. 다시 시도해 주세요.');
+    return result;
+  } catch (error) {
+    pending--;
+    await refresh();
+    pending++;
+    throw error;
+  } finally {
+    pending--;
   }
-  window.dispatchEvent(new Event(CHANGE_EVENT));
 }
-
-export function demoSessionSnapshot() {
+export async function loginDemo(input: { email: string; password: string }) {
+  const parsed = credentialsSchema.safeParse(input);
+  if (!parsed.success) throw new Error('이메일과 비밀번호를 확인해 주세요.');
+  const ticket = ++version;
+  refreshSerial++;
+  pending++;
+  setUser(null);
   try {
-    const raw = sessionStorage.getItem(SESSION_KEY) ?? '';
-    if (!raw) return '';
-    const session = demoUserSchema.safeParse(JSON.parse(raw));
-    if (!session.success) return '';
-    const account = readAccounts().find(
-      (item) => item.email === session.data.email,
-    );
-    if (!account) return '';
-    // The persisted account is authoritative when a cached session is older.
-    return JSON.stringify({
-      name: account.name,
-      email: account.email,
-      address: account.address,
-    });
-  } catch {
-    return '';
+    let result;
+    try {
+      result = await api('login', parsed.data);
+    } catch (error) {
+      if (
+        !(error instanceof AccountError) ||
+        error.code !== 'INVALID_CREDENTIALS'
+      )
+        throw error;
+      const previous = await legacyAccount(
+        parsed.data.email,
+        parsed.data.password,
+      );
+      if (!previous || !profileSchema.safeParse(previous).success) throw error;
+      result = await api('register', {
+        name: previous.name,
+        address: previous.address,
+        ...parsed.data,
+      });
+      if (result.requiresEmailVerification)
+        throw new Error('이메일 확인 후 다시 로그인해 주세요.');
+    }
+    if (ticket === version) {
+      setUser(result.user ?? null);
+      publish();
+    }
+  } finally {
+    pending--;
   }
 }
-
+export async function logoutDemo() {
+  const ticket = ++version;
+  refreshSerial++;
+  pending++;
+  try {
+    await api('logout', {});
+    if (ticket === version) {
+      setUser(null);
+      publish();
+    }
+  } catch (error) {
+    pending--;
+    await refresh();
+    pending++;
+    throw error;
+  } finally {
+    pending--;
+  }
+}
+export async function updateDemoProfile(input: {
+  name: string;
+  address: string;
+}) {
+  const parsed = profileSchema.safeParse(input);
+  if (!parsed.success)
+    throw new Error('이름은 1~40자, 집주소는 5~200자로 입력해 주세요.');
+  if (!snapshot) throw new Error('로그인 후 내 정보를 수정해 주세요.');
+  const ticket = version;
+  refreshSerial++;
+  pending++;
+  try {
+    const result = await api('profile', parsed.data, 'PATCH');
+    if (ticket === version) {
+      refreshSerial++;
+      setUser(result.user ?? null);
+      publish();
+    }
+  } finally {
+    pending--;
+  }
+}
+export function demoSessionSnapshot() {
+  return snapshot;
+}
+export function demoAuthReadySnapshot() {
+  return ready;
+}
 export function subscribeDemoSession(callback: () => void) {
-  window.addEventListener(CHANGE_EVENT, callback);
-  window.addEventListener('storage', callback);
+  listeners.add(callback);
+  if (listeners.size === 1) {
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('storage', onStorage);
+    timer = setInterval(onFocus, 15 * 60 * 1000);
+    void refresh();
+  }
   return () => {
-    window.removeEventListener(CHANGE_EVENT, callback);
-    window.removeEventListener('storage', callback);
+    listeners.delete(callback);
+    if (!listeners.size) {
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('storage', onStorage);
+      clearInterval(timer);
+    }
   };
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { updateDemoProfile, type DemoUser } from '@/lib/demo-auth';
 import { demoBillForUsage, formatBillAmount } from '@/lib/demo-electricity';
 import { useDemoAppliances } from '../useDemoAppliances';
@@ -16,14 +16,19 @@ export default function DemoProfileForm({
   const [error, setError] = useState('');
   const [savedAddress, setSavedAddress] = useState(user.address);
   const { usage } = useDemoAppliances();
+  const submitting = useRef(false);
+  const [busy, setBusy] = useState(false);
 
-  function save(event: FormEvent<HTMLFormElement>) {
+  async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (submitting.current) return;
+    submitting.current = true;
+    setBusy(true);
     setError('');
     setMessage('');
     const data = new FormData(event.currentTarget);
     try {
-      updateDemoProfile({
+      await updateDemoProfile({
         name: String(data.get('name') ?? ''),
         address: String(data.get('address') ?? ''),
       });
@@ -35,6 +40,9 @@ export default function DemoProfileForm({
           ? failure.message
           : '저장하지 못했습니다. 다시 시도해 주세요.',
       );
+    } finally {
+      submitting.current = false;
+      setBusy(false);
     }
   }
 
@@ -54,8 +62,8 @@ export default function DemoProfileForm({
         </button>
       </div>
       <p className="mt-3 text-sm leading-6 text-slate-600">
-        이름과 집주소를 확인하고 수정하세요. 가입 정보는 이 브라우저에
-        저장됩니다.
+        이름과 집주소를 확인하고 수정하세요. 본인 계정에 저장되어 다른
+        기기에서도 불러올 수 있어요.
       </p>
       <form method="post" onSubmit={save} className="mt-5 space-y-4">
         <label className="block text-sm font-bold">
@@ -127,9 +135,10 @@ export default function DemoProfileForm({
         )}
         <button
           type="submit"
+          disabled={busy}
           className="min-h-12 w-full rounded-xl bg-emerald-700 px-4 font-bold text-white"
         >
-          내 정보 저장
+          {busy ? '저장 중…' : '내 정보 저장'}
         </button>
       </form>
     </div>

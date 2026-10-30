@@ -24,7 +24,9 @@ DB 기능이 있다면 [로컬 연결과 읽기·쓰기 확인](SUPABASE_SETUP.m
 설치 명령은 `npm ci`, 현재 빌드 명령은 `npm run typecheck && npm run lint && npm run build`입니다.
 기존 문서·설정 파일의 서식 검사 오류가 남아 있어 현재 배포는 타입·린트·앱 빌드를 검증합니다.
 아래의 `npm run check && npm run build`는 서식 검사까지 정리한 뒤 사용할 기본 권장 설정입니다.
-실제 한전·DB 연동은 사용하지 않으며 계정과 데모 기록은 접속한 브라우저에 저장됩니다.
+전력 사용량은 한전 미연동 데모입니다. 회원 계정·이름·집주소는 Supabase Auth에 저장해 기기 간 로그인을 지원합니다.
+미션·배지·가전기기·절약 목표 같은 데모 기록은 계정별로 접속한 브라우저에 저장됩니다.
+Supabase 무료 프로젝트 `polar-home-auth`가 Production·Development에 연결되어 인증 환경 변수를 제공합니다.
 `.vercelignore`는 실제 환경 파일과 로컬 자동 생성물을 배포 업로드에서 제외합니다.
 
 1. 내 프로젝트의 GitHub 저장소를 Vercel에서 가져옵니다. GitHub 연결 시 필요한 저장소만 선택하고 요청되는 접근 권한을 확인하세요.

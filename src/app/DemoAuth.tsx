@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   demoSessionSnapshot,
+  demoAuthReadySnapshot,
   demoUserSchema,
   loginDemo,
   logoutDemo,
@@ -27,7 +28,7 @@ export function useDemoUser() {
   );
   const ready = useSyncExternalStore(
     subscribeDemoSession,
-    () => true,
+    demoAuthReadySnapshot,
     () => false,
   );
 
@@ -62,14 +63,15 @@ export function DemoAuthForm({ signup = false }: { signup?: boolean }) {
 
     try {
       if (signup) {
-        await registerDemo({
+        const result = await registerDemo({
           name: String(data.get('name') ?? ''),
           email,
           password,
           address: String(data.get('address') ?? ''),
         });
         form.reset();
-        setCreated(true);
+        if (result.requiresEmailVerification) setCreated(true);
+        else router.replace('/');
       } else {
         await loginDemo({ email, password });
         form.reset();
@@ -115,19 +117,19 @@ export function DemoAuthForm({ signup = false }: { signup?: boolean }) {
         <section className="mt-5 rounded-3xl bg-white p-6 shadow-lg">
           <p className="text-sm font-bold text-emerald-800">POLAR HOME</p>
           <h1 className="mt-3 text-2xl font-extrabold">
-            {signup ? '데모 회원가입' : '데모 로그인'}
+            {signup ? '회원가입' : '로그인'}
           </h1>
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            같은 브라우저에서 사용하는 발표용 계정입니다. 실제 사용하는
-            비밀번호는 입력하지 마세요.
+            한 번 가입하면 같은 이메일과 비밀번호로 다른 기기에서도 로그인할 수
+            있어요.
             {signup &&
-              ' 집주소는 한전 연동 흐름을 보여주는 데모용이며, 가입 정보는 이 브라우저에만 저장됩니다.'}
+              ' 이름과 집주소는 본인 계정에 저장됩니다. 전력 사용량은 한전 미연동 데모입니다.'}
           </p>
 
           {created ? (
             <div className="mt-6">
               <p role="status" className="font-bold text-emerald-800">
-                데모 회원가입이 완료됐어요!
+                가입됐어요. 이메일 확인 후 로그인해 주세요.
               </p>
               <Link
                 href="/login"
@@ -199,6 +201,8 @@ export function DemoAuthForm({ signup = false }: { signup?: boolean }) {
 export function DemoHeader() {
   const { user } = useDemoUser();
   const router = useRouter();
+  const [logoutError, setLogoutError] = useState('');
+  const [loggingOut, setLoggingOut] = useState(false);
 
   if (!user) {
     return (
@@ -216,14 +220,33 @@ export function DemoHeader() {
       <span className="max-w-20 truncate font-bold">{user.name}님</span>
       <button
         type="button"
-        onClick={() => {
-          logoutDemo();
-          router.replace('/');
+        disabled={loggingOut}
+        onClick={async () => {
+          if (loggingOut) return;
+          setLoggingOut(true);
+          setLogoutError('');
+          try {
+            await logoutDemo();
+            router.replace('/');
+          } catch (error) {
+            setLogoutError(
+              error instanceof Error
+                ? error.message
+                : '로그아웃하지 못했습니다.',
+            );
+          } finally {
+            setLoggingOut(false);
+          }
         }}
         className="rounded-full bg-white/85 px-3 py-3 font-bold"
       >
-        로그아웃
+        {loggingOut ? '로그아웃 중…' : '로그아웃'}
       </button>
+      {logoutError && (
+        <span role="alert" className="text-xs text-red-700">
+          {logoutError}
+        </span>
+      )}
     </div>
   );
 }
@@ -310,7 +333,7 @@ export function DemoGuard({
       }}
     >
       <p className="mx-auto max-w-lg px-5 py-3 text-sm font-bold">
-        {user.name}님이 데모 계정으로 로그인 중입니다.
+        {user.name}님으로 로그인 중입니다.
       </p>
       {children}
     </div>
