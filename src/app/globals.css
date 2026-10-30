@@ -24,3 +24,46 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@keyframes home-bear-cheer {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  30% {
+    transform: translateY(-16px) rotate(-5deg) scale(1.03);
+  }
+  65% {
+    transform: translateY(-8px) rotate(5deg);
+  }
+}
+
+@keyframes home-bear-hearts {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.8);
+  }
+  25%,
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-40px) scale(1.15);
+  }
+}
+
+.home-bear-cheer {
+  animation: home-bear-cheer 500ms ease-in-out 4;
+}
+
+.home-bear-hearts {
+  animation: home-bear-hearts 1s ease-out 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-bear-cheer,
+  .home-bear-hearts {
+    animation: none;
+  }
+}

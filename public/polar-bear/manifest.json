@@ -1,0 +1,68 @@
+{
+  "character": "POLAR HOME 북극곰",
+  "format": "PNG",
+  "transparentBackground": true,
+  "generation": {
+    "tool": "built-in image_gen",
+    "reference": "사용자가 제공한 POLAR HOME 북극곰 이미지",
+    "canonical": "idle.png"
+  },
+  "poses": [
+    {
+      "key": "idle",
+      "label": "기본",
+      "usage": "메인 화면·평상시",
+      "file": "idle.png",
+      "prompt": "Use case: identity-preserve. Edit the provided POLAR HOME reference screenshot into ONE isolated full-body mascot asset, not a poster or sheet. Preserve the exact cute baby polar bear identity: very large rounded white head, tiny rounded ears with pale pink centers, short pear-shaped fluffy white body, tiny shiny black oval eyes, small black oval nose, small friendly mouth, very rosy pink cheeks, short rounded arms and feet. Preserve the bright emerald green scarf with short scarf tails on the bear's left (viewer right). Match the reference's charming soft rounded toy-like 3D rendering, gentle fluffy surface, soft cool lighting. Pose: seated front-facing, paws resting beside belly, feet forward, calm gentle closed-mouth smile. All of the bear visible, centered, same scale occupying 78 percent of a square canvas, comfortable empty margins around ears, scarf, paws and feet. Fully transparent true alpha background. No ice, no floor, no sky, no scenery, no shadow plane, no lettering, no logo, no text, no border, no other bears, no checkerboard painted into image. The input is a character identity reference; remove all poster/background/text elements. This is the canonical character for subsequent matching poses."
+    },
+    {
+      "key": "wave",
+      "label": "인사",
+      "usage": "로그인·첫 방문",
+      "file": "wave.png",
+      "prompt": "Use case: identity-preserve. Edit the provided isolated canonical baby polar bear mascot into ONE new pose. Strictly preserve the exact same character face proportions, large round white head, white plush fluffy material, round pink-centered ears, glossy black eyes and black oval nose, pink cheeks, tiny rounded body and paws, same emerald green scarf and short tails on viewer-right. Keep the same polished soft 3D toy illustration, frontal camera and cool gentle lighting. Full-body centered isolated cutout on TRUE transparent alpha background. Square canvas with full paws and scarf inside generous margins, no cropping. No scenery, no floor or ice, no words, no logo, no labels, no sheet, no second character. Change only expression and pose as follows: Friendly welcome: seated facing forward, bear's right paw (viewer-left) raised beside its head in a waving gesture; left paw down, happy small open smile and bright welcoming eyes. One coherent full-body bear."
+    },
+    {
+      "key": "happy",
+      "label": "기쁨",
+      "usage": "미션 성공·목표 달성",
+      "file": "happy.png",
+      "prompt": "Use case: identity-preserve. Edit the provided isolated canonical baby polar bear mascot into ONE new pose. Strictly preserve the exact same character face proportions, large round white head, white plush fluffy material, round pink-centered ears, glossy black eyes and black oval nose, pink cheeks, tiny rounded body and paws, same emerald green scarf and short tails on viewer-right. Keep the same polished soft 3D toy illustration, frontal camera and cool gentle lighting. Full-body centered isolated cutout on TRUE transparent alpha background. Square canvas with full paws and scarf inside generous margins, no cropping. No scenery, no floor or ice, no words, no logo, no labels, no sheet, no second character. Change only expression and pose as follows: Mission success celebration: bear jumping joyfully with both paws raised, rounded feet tucked slightly up, eyes curved closed in delight, open happy smiling mouth. Scarf tails float slightly, a few tiny mint sparkles permitted close to bear, all on transparent alpha. Joy should be unmistakable."
+    },
+    {
+      "key": "sad",
+      "label": "슬픔",
+      "usage": "사용량 초과·목표 미달",
+      "file": "sad.png",
+      "prompt": "Use case: identity-preserve. Edit the provided isolated canonical baby polar bear mascot into ONE new pose. Strictly preserve the exact same character face proportions, large round white head, white plush fluffy material, round pink-centered ears, glossy black eyes and black oval nose, pink cheeks, tiny rounded body and paws, same emerald green scarf and short tails on viewer-right. Keep the same polished soft 3D toy illustration, frontal camera and cool gentle lighting. Full-body centered isolated cutout on TRUE transparent alpha background. Square canvas with full paws and scarf inside generous margins, no cropping. No scenery, no floor or ice, no words, no logo, no labels, no sheet, no second character. Change only expression and pose as follows: Sad about overusing electricity: sitting slightly slumped, both paws resting near its feet, slightly lowered head, concerned downturned eyebrows, small downturned mouth, ONE tiny tear on its cheek; endearing and gentle rather than distressed. Preserve same proportions and scarf."
+    },
+    {
+      "key": "thinking",
+      "label": "생각",
+      "usage": "챗봇·도움말",
+      "file": "thinking.png",
+      "prompt": "Use case: identity-preserve. Edit the provided isolated canonical baby polar bear mascot into ONE new pose. Strictly preserve the exact same character face proportions, large round white head, white plush fluffy material, round pink-centered ears, glossy black eyes and black oval nose, rosy cheeks, tiny rounded body and paws, same emerald green scarf and short tails on viewer-right. Keep the same polished soft 3D toy illustration, frontal or slight three-quarter camera and cool gentle lighting. Full-body centered isolated cutout on TRUE transparent alpha background. Square canvas with all ears, paws, feet and scarf inside comfortable margins, no cropping. No scenery, no floor or ice, no words, no logo, no labels, no sheet, no second character. Change only expression and pose as follows: Thinking/help assistant: seated, right paw lightly resting against the cheek or chin, head tilted a little, eyes thoughtfully looking slightly upward, small curious closed mouth, soft raised eyebrows. Gentle intelligent curiosity, not sadness."
+    },
+    {
+      "key": "cheer",
+      "label": "응원",
+      "usage": "미션 시작·절약 독려",
+      "file": "cheer.png",
+      "prompt": "Use case: identity-preserve. Edit the provided isolated canonical baby polar bear mascot into ONE new pose. Strictly preserve the exact same character face proportions, large round white head, white plush fluffy material, round pink-centered ears, glossy black eyes and black oval nose, rosy cheeks, tiny rounded body and paws, same emerald green scarf and short tails on viewer-right. Keep the same polished soft 3D toy illustration, frontal or slight three-quarter camera and cool gentle lighting. Full-body centered isolated cutout on TRUE transparent alpha background. Square canvas with all ears, paws, feet and scarf inside comfortable margins, no cropping. No scenery, no floor or ice, no words, no logo, no labels, no sheet, no second character. Change only expression and pose as follows: Encouragement/ready for a mission: standing on two very short rounded legs, both small paws held in front of chest like cheerful little fists, bright open eyes, confident friendly smile, playful determined eyebrows. Body still tiny and round like the reference, no human muscular body, no accessories beyond original green scarf."
+    },
+    {
+      "key": "eating",
+      "label": "먹이 먹기",
+      "usage": "먹이 주기",
+      "file": "eating.png",
+      "prompt": "Use case: identity-preserve. Edit the provided isolated canonical baby polar bear mascot into ONE new pose. Strictly preserve the exact same character face proportions, large round white head, white plush fluffy material, round pink-centered ears, glossy black eyes and black oval nose, rosy cheeks, tiny rounded body and paws, same emerald green scarf and short tails on viewer-right. Keep the same polished soft 3D toy illustration, frontal or slight three-quarter camera and cool gentle lighting. Full-body centered isolated cutout on TRUE transparent alpha background. Square canvas with all ears, paws, feet and scarf inside comfortable margins, no cropping. No scenery, no floor or ice, no words, no logo, no labels, no sheet, no second character. Change only expression and pose as follows: Feeding reward: seated bear holds ONE small cute turquoise-blue fish horizontally in both paws near its mouth, happily nibbling it; smiling closed crescent eyes, delighted puffed rosy cheeks, tiny mouth against the fish. Whole bear and fish visible. A charming harmless game feeding illustration, no gore, no mess."
+    },
+    {
+      "key": "sleeping",
+      "label": "잠자기",
+      "usage": "대기 시간·휴식",
+      "file": "sleeping.png",
+      "prompt": "Use case: identity-preserve. Edit the provided isolated canonical baby polar bear mascot into ONE new pose. Strictly preserve the exact same character face proportions, large round white head, white plush fluffy material, round pink-centered ears, glossy black eyes and black oval nose, rosy cheeks, tiny rounded body and paws, same emerald green scarf and short tails on viewer-right. Keep the same polished soft 3D toy illustration, frontal or slight three-quarter camera and cool gentle lighting. Full-body centered isolated cutout on TRUE transparent alpha background. Square canvas with all ears, paws, feet and scarf inside comfortable margins, no cropping. No scenery, no floor or ice, no words, no logo, no labels, no sheet, no second character. Change only expression and pose as follows: Rest/cooldown: the same baby bear curled up comfortably on its side in a three-quarter front view, eyes gently closed, little relaxed smile, head resting on its front paws and round back feet tucked in. Keep original emerald scarf around its neck, body proportions and facial identity. Cozy sleepy pose, no bed, no pillow, no floor, no Z letters."
+    }
+  ]
+}

@@ -1,17 +1,13 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-
-const demoUsages = [140, 180, 260];
+import Image from 'next/image';
+import { useHomeEnergyDemo } from './HomeEnergyDemo';
 
 export default function EnergyGoal() {
-  const [goal, setGoal] = useState(200);
-  const [draft, setDraft] = useState('200');
-  const [usageIndex, setUsageIndex] = useState(1);
+  const { goal, setGoal, usage, address, success } = useHomeEnergyDemo();
+  const [draft, setDraft] = useState(String(goal));
   const [error, setError] = useState('');
-
-  const usage = demoUsages[usageIndex];
-  const success = usage <= goal;
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -35,7 +31,8 @@ export default function EnergyGoal() {
         나의 전기 절약 목표
       </h2>
       <p className="mt-2 text-sm text-slate-600">
-        한 달 동안 사용할 최대 전력량을 정해 보세요.
+        한 달 동안 사용할 최대 전력량을 정해 보세요. 이번 달 사용량과 비교해
+        북극곰의 표정이 자동으로 바뀌어요.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-5">
@@ -84,38 +81,39 @@ export default function EnergyGoal() {
             : 'bg-rose-50 text-rose-900'
         }`}
       >
-        <span aria-hidden="true" className="text-6xl">
-          {success ? '😄' : '😢'}
-        </span>
+        <Image
+          src={`/polar-bear/${success ? 'happy' : 'sad'}.png`}
+          alt={
+            success ? '절약 성공으로 웃는 북극곰' : '절약 실패로 우는 북극곰'
+          }
+          width={160}
+          height={160}
+          className="mx-auto size-40 object-contain"
+        />
         <h3 className="mt-3 text-xl font-extrabold">
           {success
             ? '목표 성공! 북극곰이 기뻐해요'
             : '목표 초과! 북극곰이 슬퍼해요'}
         </h3>
         <p className="mt-2 text-sm">
-          {success
-            ? `목표보다 ${goal - usage}kWh 적게 사용했어요.`
-            : `목표보다 ${usage - goal}kWh 많이 사용했어요.`}
+          {usage === goal
+            ? '목표 사용량을 지켰어요!'
+            : success
+              ? `목표보다 ${goal - usage}kWh 적게 사용했어요.`
+              : `목표보다 ${usage - goal}kWh 많이 사용했어요.`}
         </p>
         <p className="mt-4 font-bold">
-          사용량 {usage}kWh / 목표 {goal}kWh
+          이번 달 사용량 {usage}kWh / 목표 {goal}kWh
         </p>
       </div>
 
       <div className="mt-5 border-t border-slate-100 pt-4">
         <p className="text-xs text-slate-600">
-          월 사용량을 임의로 정한 결과 데모입니다. 다른 요금·절약 현황 카드는
-          별도의 고정 예시예요.
+          이번 달 사용량은 마이페이지와 동일한 {usage}kWh이며, 실제 전력 데이터
+          연동 전의{' '}
+          {address ? '등록한 집주소에 따른' : '주소 미등록 상태의 기본'} 데모
+          값입니다. 목표 이하이면 기뻐하고, 초과하면 슬퍼해요.
         </p>
-        <button
-          type="button"
-          onClick={() =>
-            setUsageIndex((index) => (index + 1) % demoUsages.length)
-          }
-          className="mt-3 min-h-11 w-full rounded-xl border border-sky-200 px-4 text-sm font-bold hover:bg-sky-50 focus-visible:outline-2 focus-visible:outline-offset-2"
-        >
-          사용량 데모 변경
-        </button>
       </div>
     </section>
   );
