@@ -43,6 +43,7 @@ const solarTheme = `
   .row { display:grid; grid-template-columns:minmax(0,1fr); gap:14px; }
   .row>.card:nth-child(2) { order:0; }
   .kpis { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+  .kpis>.k:only-child { grid-column:1 / -1; }
   .k { border:1px solid var(--bd); border-radius:18px; padding:12px; }
   .k b { font-size:18px; }
   .card { border:1px solid var(--bd); border-radius:24px; padding:16px; }
