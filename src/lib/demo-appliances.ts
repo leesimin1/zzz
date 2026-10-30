@@ -11,7 +11,7 @@ const customSchema = z
     powerKw: z.number().positive().max(20),
   })
   .refine((item) => item.end > item.start);
-const configSchema = z.object({
+export const configSchema = z.object({
   removed: z.array(z.string()).max(6),
   enabled: z.record(z.string(), z.boolean()),
   custom: z.array(customSchema).max(18),

@@ -2,7 +2,8 @@
 
 import { useDemoUser } from './DemoAuth';
 import { scopeDemoAccountHtml } from '@/lib/demo-account-storage';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { BEAR_REMOTE_EVENT } from '@/lib/account-state-client';
 import { useDemoAppliances } from './useDemoAppliances';
 import type { DemoAppliance } from '@/lib/demo-appliances';
 
@@ -10,14 +11,23 @@ export default function DemoAccountFrame({
   html,
   title,
   className,
+  syncBear = false,
 }: {
   html: string;
   title: string;
   className: string;
+  syncBear?: boolean;
 }) {
   const { user } = useDemoUser();
   const { devices, usage, change } = useDemoAppliances();
   const frame = useRef<HTMLIFrameElement>(null);
+  const [bearRevision, setBearRevision] = useState(0);
+  useEffect(() => {
+    if (!syncBear) return;
+    const refreshBear = () => setBearRevision((revision) => revision + 1);
+    window.addEventListener(BEAR_REMOTE_EVENT, refreshBear);
+    return () => window.removeEventListener(BEAR_REMOTE_EVENT, refreshBear);
+  }, [syncBear]);
   function connect() {
     const content = frame.current?.contentWindow as
       | (Window & {
@@ -62,7 +72,7 @@ export default function DemoAccountFrame({
     <iframe
       ref={frame}
       onLoad={connect}
-      key={user.email}
+      key={`${user.email}:${bearRevision}`}
       title={title}
       srcDoc={scopeDemoAccountHtml(html, user.email)}
       sandbox="allow-scripts allow-same-origin"

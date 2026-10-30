@@ -139,6 +139,11 @@
 
   function persist() {
     localStorage.setItem(STORE_KEY, JSON.stringify(state));
+    window.parent.dispatchEvent(
+      new CustomEvent('polar-bear-state-change', {
+        detail: { key: STORE_KEY },
+      }),
+    );
   }
 
   function synchronize() {

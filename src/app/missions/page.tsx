@@ -24,8 +24,8 @@ export default function MissionsPage() {
           ← 메인페이지로 돌아가기
         </Link>
         <p className="mt-2 text-xs text-slate-600">
-          미션·먹이·북극곰 성장 데모입니다. 진행 상황은 이 브라우저에
-          저장됩니다.
+          미션·먹이·북극곰 성장 데모입니다. 진행 상황은 로그인한 계정에 저장되어
+          다른 기기에서도 이어서 사용할 수 있습니다.
         </p>
       </div>
       <DemoGuard
@@ -33,6 +33,7 @@ export default function MissionsPage() {
         loginMessage="내 미션 기록과 북극곰, 수집 배지는 계정별로 저장돼요. 로그인 후 미션을 시작해 주세요."
       >
         <DemoAccountFrame
+          syncBear
           title="미션과 북극곰 성장"
           html={html}
           className="mx-auto block min-h-0 w-full max-w-lg flex-1 border-0"

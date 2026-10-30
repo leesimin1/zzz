@@ -63,7 +63,7 @@ export function authContext(request: NextRequest) {
   return { client, reply };
 }
 
-export async function readAccountInput(request: NextRequest) {
+export async function readAccountInput(request: NextRequest, maxBytes = 8192) {
   const rawOrigin = request.headers.get('origin');
   const host = request.headers.get('host') ?? new URL(request.url).host;
   let origin: URL;
@@ -84,7 +84,7 @@ export async function readAccountInput(request: NextRequest) {
     const { value, done } = await reader.read();
     if (done) break;
     bytes += value.length;
-    if (bytes > 8192) {
+    if (bytes > maxBytes) {
       await reader.cancel();
       throw new Error('INPUT');
     }
