@@ -1,4 +1,4 @@
-/* global DEV, S, DT, sim */
+/* global DEV, S */
 
 (() => {
   const original = document.getElementById('ltpl');
@@ -35,13 +35,6 @@
   const originalRender = window.render;
   window.render = function (...args) {
     const result = originalRender.apply(this, args);
-    const generation = sim({ pv: 1, gen: 1, ess: 0, dr: 0 });
-    const dailyKwh =
-      generation.pvT + generation.gn.reduce((sum, kw) => sum + kw * DT, 0);
-    showMonthlyTotal(
-      'monthly-generation',
-      Math.round(dailyKwh * 30 * 100) / 100,
-    );
     showMonthlyTotal('monthly-consumption', monthlyUsage);
     return result;
   };

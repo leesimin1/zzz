@@ -31,7 +31,7 @@ const solarTheme = `
   .ttl { display:none; }
   .mon {
     width:100%; margin:0; display:grid;
-    grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px;
+    grid-template-columns:minmax(0,1fr); gap:10px;
   }
   .mon>div { min-width:0; padding:12px 10px; border:1px solid var(--bd); border-radius:20px; }
   .mon b { font-size:18px; }
@@ -88,10 +88,7 @@ export default function SolarPage() {
     )?.[0] ?? original;
 
   const html = document
-    .replace(
-      '<b>724.8<i>kWh</i></b>',
-      '<b id="monthly-generation">—<i>kWh</i></b>',
-    )
+    .replace(/<div style="--c:var\(--pv\)">[\s\S]*?<\/div>/, '')
     .replace(
       '<b>861.3<i>kWh</i></b>',
       '<b id="monthly-consumption">—<i>kWh</i></b>',
@@ -165,8 +162,6 @@ export default function SolarPage() {
               발전량·사용량·배터리를 조절해 보세요.
               <br />
               실제 계량기와 연결되지 않은 시뮬레이션입니다.
-              <br />
-              발전량은 현재 설정을 30일로 환산한 예상치입니다.
             </p>
           </div>
           <span
