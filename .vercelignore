@@ -1,0 +1,10 @@
+node_modules/
+.next/
+.vercel/
+.git/
+src/generated_prisma
+next-env.d.ts
+*.tsbuildinfo
+*.log
+.env*
+!.env.example
