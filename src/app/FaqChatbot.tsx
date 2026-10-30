@@ -1,18 +1,15 @@
 'use client';
 
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import {
-  electricitySavings,
-  estimatedElectricityBill,
-  formatBillAmount,
-} from '@/lib/demo-electricity';
+import { formatBillAmount } from '@/lib/demo-electricity';
+import { useDemoElectricityBill } from './DemoElectricityBill';
 
 const faqs = [
   {
     question: '절약 목표는 어떻게 설정해?',
     keywords: ['목표', '사용량', '성공', '표정'],
     answer:
-      '‘나의 전기 절약 목표’에서 월 최대 사용량을 입력하고 ‘목표 설정’을 누르세요. 데모 사용량이 목표 이하면 기쁜 표정, 초과하면 슬픈 표정이 나옵니다. 새로고침하면 초기화돼요.',
+      '‘나의 전기 절약 목표’에서 월 최대 사용량을 입력하고 ‘목표 설정’을 누르세요. 데모 사용량이 목표 이하면 기쁜 표정, 초과하면 슬픈 표정이 나옵니다. 로그인 후 설정한 목표는 계정별로 저장돼요.',
   },
   {
     question: '미션은 어떻게 참여해?',
@@ -29,13 +26,14 @@ const faqs = [
   {
     question: '전기요금은 실제 금액이야?',
     keywords: ['요금', '금액', '탄소', '실제', '데모'],
-    answer: `공통으로 표시하는 이번 달 예상 전기요금은 ${formatBillAmount(estimatedElectricityBill)}원, 지난달 대비 절약액은 ${formatBillAmount(electricitySavings)}원입니다. 화면을 위한 예시이며 실제 청구 금액과 연결되어 있지 않아요. 태양광 차트의 조건별 시뮬레이션 값은 별도로 계산됩니다.`,
+    answer:
+      '등록한 집주소의 데모 사용량에 따라 예상 전기요금이 바뀌어요. 실제 한전 요금과 연결되어 있지 않습니다.',
   },
   {
     question: '태양광 발전용량은 어디서 봐?',
     keywords: ['태양광', '발전', '용량', '패널'],
     answer:
-      '하단 ‘태양광’ 메뉴에서 발전량·전력 사용량·배터리·예상 절감액을 확인할 수 있어요. 발전원을 선택하거나 ‘설정’에서 조건을 바꿔 보세요. 값은 시뮬레이션 예시이며 실제 계량기나 청구 금액과 연결되어 있지 않습니다.',
+      '하단 ‘그래프’ 메뉴에서 발전량·전력 사용량·배터리·예상 절감액을 확인할 수 있어요. 발전원을 선택하거나 ‘설정’에서 조건을 바꿔 보세요. 값은 시뮬레이션 예시이며 실제 계량기나 청구 금액과 연결되어 있지 않습니다.',
   },
   {
     question: '로그인과 회원가입은 어디서 해?',
@@ -51,6 +49,7 @@ type Message = {
 };
 
 export default function FaqChatbot() {
+  const bill = useDemoElectricityBill();
   const [question, setQuestion] = useState('');
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -74,7 +73,9 @@ export default function FaqChatbot() {
     );
 
     const answer =
-      matched?.answer ??
+      (matched === faqs[3] && bill
+        ? `이번 달 예상 전기요금은 ${formatBillAmount(bill.amount)}원, 지난달 대비 ${formatBillAmount(Math.abs(bill.savings))}원 ${bill.savings >= 0 ? '절약' : '증가'}입니다. 집주소에 따른 대회용 예시이며, 실제 한전 청구 금액과 연결되어 있지 않아요.`
+        : matched?.answer) ??
       '아직 이 질문에 대한 안내는 준비되어 있지 않아요. 아래 추천 질문을 선택하거나 절약 목표·미션·먹이·전기요금·태양광·로그인 중 궁금한 주제를 적어 주세요.';
 
     setMessages((previous) =>

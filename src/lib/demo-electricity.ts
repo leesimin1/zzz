@@ -27,3 +27,30 @@ export const electricitySavingsPercent = (
 export function formatBillAmount(amount: number) {
   return amount.toLocaleString('ko-KR');
 }
+
+// Presentation-only amounts, scaled from the existing fixture (not a KEPCO tariff).
+export function demoBillForUsage(usage: number) {
+  const items = demoElectricityBill.items.map((item) => ({
+    label: item.label,
+    amount:
+      item.label === '기본요금'
+        ? item.amount
+        : Math.round(
+            (item.amount * usage) /
+              demoElectricityBill.currentMonthUsageKwh /
+              10,
+          ) * 10,
+  }));
+  const amount = items.reduce((sum, item) => sum + item.amount, 0);
+  const savings = demoElectricityBill.previousMonthAmount - amount;
+  return {
+    usage,
+    amount,
+    savings,
+    items,
+    savingsPercent: (
+      (Math.abs(savings) / demoElectricityBill.previousMonthAmount) *
+      100
+    ).toFixed(1),
+  };
+}

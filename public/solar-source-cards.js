@@ -54,4 +54,22 @@
   };
 
   window.renderGens();
+
+  function updateBatteryVisibility() {
+    const active =
+      Boolean(S.pv?.on) || GEN.some((source) => Boolean(S.gen[source.k]));
+    const battery = document.querySelector('.bcard');
+    if (battery) {
+      battery.hidden = !active;
+      battery.style.display = active ? '' : 'none';
+    }
+  }
+
+  const originalRender = window.render;
+  window.render = function (...args) {
+    const result = originalRender.apply(this, args);
+    updateBatteryVisibility();
+    return result;
+  };
+  updateBatteryVisibility();
 })();

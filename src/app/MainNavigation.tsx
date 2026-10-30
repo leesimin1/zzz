@@ -3,7 +3,7 @@ import { DemoMyPageLink } from './DemoAuth';
 
 const navigation = [
   { icon: '⌂', label: '홈', href: '/' },
-  { icon: '☀', label: '태양광', href: '/solar' },
+  { icon: '☀', label: '그래프', href: '/solar' },
   { icon: '🌱', label: '미션', href: '/missions' },
 ];
 

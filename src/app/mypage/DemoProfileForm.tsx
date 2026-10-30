@@ -2,7 +2,8 @@
 
 import { useState, type FormEvent } from 'react';
 import { updateDemoProfile, type DemoUser } from '@/lib/demo-auth';
-import { demoUsageForAddress } from '@/lib/demo-home';
+import { demoBillForUsage, formatBillAmount } from '@/lib/demo-electricity';
+import { useDemoAppliances } from '../useDemoAppliances';
 
 export default function DemoProfileForm({
   user,
@@ -14,6 +15,7 @@ export default function DemoProfileForm({
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [savedAddress, setSavedAddress] = useState(user.address);
+  const { usage } = useDemoAppliances();
 
   function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -99,8 +101,10 @@ export default function DemoProfileForm({
               : '주소 미등록 · 기본 예시 사용량'}
           </p>
           <p className="mt-2 text-2xl font-extrabold">
-            {demoUsageForAddress(user.address)}{' '}
-            <span className="text-sm">kWh</span>
+            {usage} <span className="text-sm">kWh</span>
+          </p>
+          <p className="mt-2 font-bold">
+            예상 전기요금 {formatBillAmount(demoBillForUsage(usage).amount)}원
           </p>
           <p
             id="demo-home-note"

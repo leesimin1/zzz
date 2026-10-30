@@ -249,14 +249,43 @@ export function DemoMyPageLink({ active = false }: { active?: boolean }) {
   );
 }
 
-export function DemoGuard({ children }: { children: ReactNode }) {
+export function DemoGuard({
+  children,
+  className,
+  loginMessage,
+}: {
+  children: ReactNode;
+  className?: string;
+  loginMessage?: string;
+}) {
   const { ready, user } = useDemoUser();
   const router = useRouter();
   const loggedIn = Boolean(user);
 
   useEffect(() => {
-    if (ready && !loggedIn) router.replace('/login');
-  }, [ready, loggedIn, router]);
+    if (ready && !loggedIn && !loginMessage) router.replace('/login');
+  }, [ready, loggedIn, router, loginMessage]);
+
+  if (ready && !user && loginMessage) {
+    return (
+      <section className="mx-auto my-6 w-[calc(100%-32px)] max-w-md rounded-3xl bg-white p-6 shadow-sm">
+        <h2 className="text-xl font-extrabold">먼저 로그인해 주세요</h2>
+        <p className="mt-3 text-sm leading-6 text-slate-600">{loginMessage}</p>
+        <Link
+          href="/login"
+          className="mt-5 flex min-h-12 items-center justify-center rounded-xl bg-emerald-700 px-4 font-bold text-white"
+        >
+          로그인하러 가기
+        </Link>
+        <Link
+          href="/"
+          className="mt-2 flex min-h-11 items-center justify-center text-sm font-bold"
+        >
+          메인으로 돌아가기
+        </Link>
+      </section>
+    );
+  }
 
   if (!ready || !user) {
     return (
@@ -268,6 +297,8 @@ export function DemoGuard({ children }: { children: ReactNode }) {
 
   return (
     <div
+      key={user.email}
+      className={className}
       onLoadCapture={(event) => {
         if (event.target instanceof HTMLIFrameElement) {
           event.target.contentDocument

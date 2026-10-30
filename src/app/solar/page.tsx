@@ -4,16 +4,13 @@ import type { Metadata } from 'next';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import Link from 'next/link';
-import { DemoHeader } from '../DemoAuth';
+import { DemoGuard, DemoHeader } from '../DemoAuth';
+import DemoAccountFrame from '../DemoAccountFrame';
 import MainNavigation from '../MainNavigation';
-import {
-  electricitySavings,
-  estimatedElectricityBill,
-  formatBillAmount,
-} from '@/lib/demo-electricity';
+import { DemoBillSummary } from '../DemoElectricityBill';
 
 export const metadata: Metadata = {
-  title: '우리 집 태양광 | POLAR HOME',
+  title: '우리 집 그래프 | POLAR HOME',
   description:
     '태양광 발전량, 전력 사용량과 배터리를 조절하는 에너지 시뮬레이션',
 };
@@ -91,13 +88,28 @@ export default function SolarPage() {
     )?.[0] ?? original;
 
   const html = document
+    .replace(/const DEV=\[[^\n]*\];/, 'const DEV=[];')
+    .replace('let l=baseAt(h)', 'let l=0')
+    .replace(
+      'for(const d of DEV){if(h>=d.s&&h<d.e)',
+      'for(const d of DEV){if(S.dev[d.k]&&h>=d.s&&h<d.e)',
+    )
+    .replaceAll('발전량 vs 부하 수요', '발전량 vs 가전기기별 사용량')
+    .replaceAll('피크 부하 제어', '피크 시간 사용량 절감')
+    .replaceAll('＋ 부하 직접 추가', '＋ 가전기기 추가')
+    .replaceAll('부하 추가', '가전기기 추가')
+    .replaceAll('경부하', '심야')
+    .replaceAll('부하', '가전기기별 사용량')
     .replace('<html lang="ko">', '<html lang="ko" data-theme="light">')
     .replace(
       /<link\b[^>]*href="https:\/\/fonts\.googleapis\.com[^\"]*"[^>]*>\s*/g,
       '',
     )
     .replace('</head>', `<style>${solarTheme}</style></head>`)
-    .replace('</body>', '<script src="/solar-source-cards.js"></script></body>')
+    .replace(
+      '</body>',
+      '<script src="/solar-source-cards.js"></script><script src="/solar-appliances.js"></script></body>',
+    )
     .replace('<body>', '<body class="editing">')
     .replace(
       '<div class="card fold" id="gcard">',
@@ -139,7 +151,7 @@ export default function SolarPage() {
               햇빛으로 채우는 더 푸른 내일
             </p>
             <h1 className="mt-1 text-2xl font-extrabold tracking-tight">
-              우리 집 태양광
+              우리 집 그래프
             </h1>
             <p className="mt-2 text-xs leading-5 text-slate-600">
               발전량·사용량·배터리를 조절해 보세요.
@@ -154,20 +166,18 @@ export default function SolarPage() {
             ☀
           </span>
         </div>
-        <p className="mt-3 rounded-xl bg-white/85 px-3 py-2 text-xs leading-5">
-          이번 달 예상 전기요금{' '}
-          <strong>{formatBillAmount(estimatedElectricityBill)}원</strong>
-          <span className="ml-2 font-bold text-emerald-800">
-            지난달 대비 {formatBillAmount(electricitySavings)}원 절약
-          </span>
-        </p>
+        <DemoBillSummary />
       </header>
-      <iframe
-        title="태양광 발전과 에너지 시뮬레이션"
-        srcDoc={html}
-        sandbox="allow-scripts allow-same-origin"
-        className="mx-auto block min-h-0 w-full max-w-lg flex-1 border-0 bg-[#f3fbff]"
-      />
+      <DemoGuard
+        className="flex min-h-0 flex-1 flex-col"
+        loginMessage="우리 집 그래프와 사용 정보를 확인하려면 로그인해 주세요. 계정별로 별도의 데모를 이용할 수 있어요."
+      >
+        <DemoAccountFrame
+          title="태양광 발전과 에너지 시뮬레이션"
+          html={html}
+          className="mx-auto block min-h-0 w-full max-w-lg flex-1 border-0 bg-[#f3fbff]"
+        />
+      </DemoGuard>
       <MainNavigation active="/solar" />
     </main>
   );

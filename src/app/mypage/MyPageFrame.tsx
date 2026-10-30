@@ -9,18 +9,37 @@ import {
   useState,
 } from 'react';
 import { useDemoUser } from '../DemoAuth';
-import { demoUsageForAddress } from '@/lib/demo-home';
+import { useDemoAppliances } from '../useDemoAppliances';
+import { demoBillForUsage } from '@/lib/demo-electricity';
+import type { DemoAppliance } from '@/lib/demo-appliances';
 import DemoProfileForm from './DemoProfileForm';
+import { scopeDemoAccountHtml } from '@/lib/demo-account-storage';
+import { withDemoElectricityBill } from '@/lib/demo-electricity-html';
 
 export default function MyPageFrame({ html }: { html: string }) {
   const frame = useRef<HTMLIFrameElement>(null);
   const profileDialog = useRef<HTMLDialogElement>(null);
   const [visit, setVisit] = useState(0);
   const { user } = useDemoUser();
-  const usage = demoUsageForAddress(user?.address ?? '');
+  const { usage, devices } = useDemoAppliances();
+  const energyAmount = demoBillForUsage(usage).items[0].amount;
+  const applySharedAppliances = useCallback(() => {
+    const content = frame.current?.contentWindow as
+      | (Window & {
+          applyDemoAppliances?: (
+            items: DemoAppliance[],
+            energyAmount: number,
+          ) => void;
+        })
+      | null;
+    content?.applyDemoAppliances?.(devices, energyAmount);
+  }, [devices, energyAmount]);
   const homeHtml = useMemo(
     () =>
-      html
+      scopeDemoAccountHtml(
+        withDemoElectricityBill(html, usage),
+        user?.email ?? '',
+      )
         .replaceAll(
           `onclick="openDetail('profile')"`,
           `disabled data-demo-profile onclick="window.parent.dispatchEvent(new Event('polar-demo-profile-open'))"`,
@@ -37,9 +56,9 @@ export default function MyPageFrame({ html }: { html: string }) {
         )
         .replace(
           '</body>',
-          `<script src="/mypage-home-usage.js"></script><script>applyDemoHomeUsage(${usage});</script></body>`,
+          `<script src="/mypage-home-usage.js"></script><script>applyDemoHomeUsage(${usage});</script><script src="/mypage-appliances.js"></script></body>`,
         ),
-    [html, usage],
+    [html, usage, user?.email],
   );
 
   const prepareFrame = useCallback(() => {
@@ -64,7 +83,8 @@ export default function MyPageFrame({ html }: { html: string }) {
         });
     }
     openRequestedScreen();
-  }, []);
+    applySharedAppliances();
+  }, [applySharedAppliances]);
 
   function openRequestedScreen() {
     const content = frame.current?.contentWindow as

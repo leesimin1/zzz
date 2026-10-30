@@ -82,7 +82,8 @@
       : 1;
     const look = levelLooks[currentLevel - 1];
     const growBear = document.getElementById('growBear');
-    setFigure(growBear, growthMood ?? look.mood);
+    const restingMood = window.polarBearHungry ? 'sad' : look.mood;
+    setFigure(growBear, growthMood ?? restingMood);
     if (growBear) {
       growBear.dataset.polarLevel = String(currentLevel);
       growBear.style.setProperty(
@@ -103,7 +104,7 @@
         `Lv.${index + 1} ${labels[appearance.mood]} 북극곰${index + 1 > currentLevel ? ' (잠김)' : ''}`;
     });
     document.querySelectorAll('.banner .bear').forEach((element) => {
-      setFigure(element, growthMood ?? look.mood);
+      setFigure(element, growthMood ?? restingMood);
     });
     document.querySelectorAll('.bear-reaction').forEach((element) => {
       const mood = element.textContent.includes('😢')

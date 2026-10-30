@@ -4,12 +4,14 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import Link from 'next/link';
 import { withPolarBearAssets } from '@/lib/polar-bear-html';
+import { DemoGuard } from '../DemoAuth';
+import DemoAccountFrame from '../DemoAccountFrame';
 
 export default function MissionsPage() {
   const original = readFileSync(join(process.cwd(), 'server.py.html'), 'utf8');
   const html = withPolarBearAssets(original).replace(
     '</body>',
-    '<script src="/mission-cycle.js"></script><script src="/mission-effects.js"></script><script src="/mission-activity.js"></script></body>',
+    '<script src="/mission-cycle.js"></script><script src="/mission-effects.js"></script><script src="/mission-activity.js"></script><script src="/bear-hunger.js"></script></body>',
   );
 
   return (
@@ -26,12 +28,16 @@ export default function MissionsPage() {
           저장됩니다.
         </p>
       </div>
-      <iframe
-        title="미션과 북극곰 성장"
-        srcDoc={html}
-        sandbox="allow-scripts allow-same-origin"
-        className="mx-auto block min-h-0 w-full max-w-lg flex-1 border-0"
-      />
+      <DemoGuard
+        className="flex min-h-0 flex-1 flex-col"
+        loginMessage="내 미션 기록과 북극곰, 수집 배지는 계정별로 저장돼요. 로그인 후 미션을 시작해 주세요."
+      >
+        <DemoAccountFrame
+          title="미션과 북극곰 성장"
+          html={html}
+          className="mx-auto block min-h-0 w-full max-w-lg flex-1 border-0"
+        />
+      </DemoGuard>
     </main>
   );
 }

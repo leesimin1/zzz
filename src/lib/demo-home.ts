@@ -1,4 +1,4 @@
-import { demoElectricityBill } from './demo-electricity';
+import { demoElectricityBill, demoBillForUsage } from './demo-electricity';
 
 // A repeatable presentation fixture, never an estimate of a real home's usage.
 export function demoUsageForAddress(address: string) {
@@ -9,4 +9,8 @@ export function demoUsageForAddress(address: string) {
     hash = Math.imul(hash ^ (character.codePointAt(0) ?? 0), 16777619);
   }
   return 180 + ((hash >>> 0) % 241);
+}
+
+export function demoBillForAddress(address: string) {
+  return demoBillForUsage(demoUsageForAddress(address));
 }

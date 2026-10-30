@@ -86,7 +86,7 @@
       <h3>완료한 미션 기록</h3>
       <p id="activityLegacy" class="activity-note"></p>
       <ul class="activity-history"></ul>
-      <p class="activity-note">이 브라우저에 저장된 활동입니다. 브라우저 데이터를 삭제하면 기록과 배지가 초기화됩니다.</p>
+      <p class="activity-note">현재 로그인한 계정의 활동입니다. 이 브라우저에 계정별로 저장되며, 브라우저 데이터를 삭제하면 기록과 배지가 초기화됩니다.</p>
     </div>`;
   document.body.appendChild(dialog);
   dialog.querySelector('.activity-close').onclick = () => dialog.close();

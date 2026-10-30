@@ -18,8 +18,16 @@ export default function EnergyGoal() {
       return;
     }
 
-    setGoal(nextGoal);
-    setError('');
+    try {
+      setGoal(nextGoal);
+      setError('');
+    } catch (failure) {
+      setError(
+        failure instanceof Error
+          ? failure.message
+          : '목표를 저장하지 못했습니다.',
+      );
+    }
   }
 
   return (
@@ -111,8 +119,10 @@ export default function EnergyGoal() {
         <p className="text-xs text-slate-600">
           이번 달 사용량은 마이페이지와 동일한 {usage}kWh이며, 실제 전력 데이터
           연동 전의{' '}
-          {address ? '등록한 집주소에 따른' : '주소 미등록 상태의 기본'} 데모
-          값입니다. 목표 이하이면 기뻐하고, 초과하면 슬퍼해요.
+          {address
+            ? '등록한 집주소와 가전기기 설정에 따른'
+            : '주소 미등록 상태의 기본'}{' '}
+          데모 값입니다. 목표 이하이면 기뻐하고, 초과하면 슬퍼해요.
         </p>
       </div>
     </section>

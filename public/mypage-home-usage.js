@@ -1,7 +1,7 @@
 /* global tariffData, renderTariff */
 
 window.applyDemoHomeUsage = function (usage) {
-  if (!Number.isInteger(usage) || usage <= 0) return;
+  if (!Number.isFinite(usage) || usage < 0) return;
   for (const period of [3, 6, 12]) {
     const rows = tariffData[period];
     rows[rows.length - 1][2] = usage;
@@ -23,11 +23,11 @@ window.applyDemoHomeUsage = function (usage) {
         ? remaining
         : Math.round((original / 347) * usage);
     remaining -= amount;
-    element.textContent = `${amount} kWh · ${Math.round((amount / usage) * 100)}%`;
+    element.textContent = `${amount} kWh · ${usage ? Math.round((amount / usage) * 100) : 0}%`;
     element
       .closest('.device-row')
       .querySelector('.device-meter span').style.width =
-      `${(amount / usage) * 100}%`;
+      `${usage ? (amount / usage) * 100 : 0}%`;
   });
   renderTariff(6);
 };

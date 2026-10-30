@@ -206,7 +206,7 @@ export function demoSessionSnapshot() {
     const account = readAccounts().find(
       (item) => item.email === session.data.email,
     );
-    if (!account) return raw;
+    if (!account) return '';
     // The persisted account is authoritative when a cached session is older.
     return JSON.stringify({
       name: account.name,

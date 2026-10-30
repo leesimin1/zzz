@@ -1,7 +1,7 @@
 ﻿/* global missions, state, selected: writable, doneKey, toast */
 
 (() => {
-  const STORE_KEY = 'polarHomeV2';
+  const STORE_KEY = window.polarMissionStoreKey || 'polarHomeV2';
   const ROW_COUNT = 5;
   const MISSIONS_PER_ROW = 3;
   const COOLDOWN_MS = 5 * 60 * 1000;

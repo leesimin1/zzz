@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { DemoGuard } from '../DemoAuth';
 import MainNavigation from '../MainNavigation';
 import { withPolarBearAssets } from '@/lib/polar-bear-html';
-import { withDemoElectricityBill } from '@/lib/demo-electricity-html';
 import MyPageFrame from './MyPageFrame';
 
 export default function MyPage() {
@@ -15,7 +14,7 @@ export default function MyPage() {
     'utf8',
   );
 
-  const html = withPolarBearAssets(withDemoElectricityBill(original))
+  const html = withPolarBearAssets(original)
     .replace(
       /<article class="card toggle-line">[\s\S]*?id="easyToggle"[\s\S]*?<\/article>/,
       '',

@@ -2,35 +2,80 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useState,
-  type Dispatch,
+  useSyncExternalStore,
   type ReactNode,
-  type SetStateAction,
 } from 'react';
 import Image from 'next/image';
-import { demoUsageForAddress } from '@/lib/demo-home';
+import Link from 'next/link';
+import { useDemoAppliances } from './useDemoAppliances';
 import { useDemoUser } from './DemoAuth';
+import {
+  demoAccountStorageKey,
+  subscribeDemoGoal,
+} from '@/lib/demo-account-storage';
 
 type EnergyDemo = {
   goal: number;
   usage: number;
   address: string;
   success: boolean;
-  setGoal: Dispatch<SetStateAction<number>>;
+  setGoal: (goal: number) => void;
 };
 
 const EnergyDemoContext = createContext<EnergyDemo | null>(null);
 
 export function HomeEnergyProvider({ children }: { children: ReactNode }) {
-  const [goal, setGoal] = useState(200);
+  const [guestGoal, setGuestGoal] = useState(200);
   const { user } = useDemoUser();
+  const email = user?.email ?? '';
+  const readGoal = useCallback(() => {
+    if (!email) return 200;
+    try {
+      const value = Number(
+        localStorage.getItem(
+          demoAccountStorageKey('polar-energy-goal-v1', email),
+        ),
+      );
+      return Number.isInteger(value) && value >= 1 && value <= 10000
+        ? value
+        : 200;
+    } catch {
+      return 200;
+    }
+  }, [email]);
+  const savedGoal = useSyncExternalStore(
+    subscribeDemoGoal,
+    readGoal,
+    () => 200,
+  );
+  const goal = email ? savedGoal : guestGoal;
+  function setGoal(value: number) {
+    if (!email) {
+      setGuestGoal(value);
+      return;
+    }
+    try {
+      localStorage.setItem(
+        demoAccountStorageKey('polar-energy-goal-v1', email),
+        String(value),
+      );
+    } catch {
+      throw new Error(
+        '목표를 저장하지 못했습니다. 브라우저 저장 설정을 확인해 주세요.',
+      );
+    }
+    window.dispatchEvent(new Event('polar-demo-goal-change'));
+  }
   const address = user?.address ?? '';
-  const usage = demoUsageForAddress(address);
+  const { usage } = useDemoAppliances();
 
   return (
     <EnergyDemoContext.Provider
+      key={email || 'guest'}
       value={{ goal, usage, address, success: usage <= goal, setGoal }}
     >
       {children}
@@ -44,10 +89,34 @@ export function useHomeEnergyDemo() {
   return demo;
 }
 
+export function HomeAccountContent({ children }: { children: ReactNode }) {
+  const { user } = useDemoUser();
+  if (!user) {
+    return (
+      <Link
+        href="/login"
+        className="block rounded-3xl bg-white p-7 text-center shadow-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-700"
+      >
+        <p className="text-xl font-extrabold text-emerald-800">
+          로그인해 주세요
+        </p>
+        <p className="mt-3 text-sm leading-6 text-slate-600">
+          로그인하면 우리 집 전기요금과 사용량, 절약 목표를 확인할 수 있어요.
+        </p>
+        <span className="mt-5 inline-flex min-h-12 items-center rounded-full bg-emerald-700 px-6 font-bold text-white">
+          로그인하러 가기 →
+        </span>
+      </Link>
+    );
+  }
+  return children;
+}
+
 export function HomeEnergyHero() {
+  const { user } = useDemoUser();
   const { success, goal, usage } = useHomeEnergyDemo();
   const [celebration, setCelebration] = useState(0);
-  const cheering = celebration > 0;
+  const cheering = Boolean(user) && celebration > 0;
 
   useEffect(() => {
     if (!celebration) return;
@@ -70,17 +139,25 @@ export function HomeEnergyHero() {
       />
       <div className="relative z-10 px-6 pt-28">
         <p
-          className={`mb-2 text-sm font-bold ${success ? 'text-emerald-800' : 'text-rose-800'}`}
+          className={`mb-2 text-sm font-bold ${!user || success ? 'text-emerald-800' : 'text-rose-800'}`}
         >
-          {success
-            ? '절약 성공 · 북극곰이 웃고 있어요'
-            : '절약 실패 · 북극곰이 울고 있어요'}
+          {!user
+            ? '나의 작은 절약, 북극곰의 행복'
+            : success
+              ? '절약 성공 · 북극곰이 웃고 있어요'
+              : '절약 실패 · 북극곰이 울고 있어요'}
         </p>
         <h1
           id="welcome-title"
           className="text-2xl leading-snug font-extrabold tracking-tight"
         >
-          {success ? (
+          {!user ? (
+            <>
+              북극곰과 함께
+              <br />
+              절약을 시작해 볼까요?
+            </>
+          ) : success ? (
             <>
               오늘의 절약이
               <br />
@@ -94,9 +171,11 @@ export function HomeEnergyHero() {
             </>
           )}
         </h1>
-        <p className="mt-3 text-sm">
-          이번 달 사용량 {usage}kWh / 목표 {goal}kWh
-        </p>
+        {user && (
+          <p className="mt-3 text-sm">
+            이번 달 사용량 {usage}kWh / 목표 {goal}kWh
+          </p>
+        )}
       </div>
       <svg
         aria-hidden="true"
@@ -161,22 +240,27 @@ export function HomeEnergyHero() {
       </svg>
       <button
         type="button"
-        aria-label="북극곰을 눌러 응원하기"
+        aria-label={
+          user ? '북극곰을 눌러 응원하기' : '빙하 위에 앉아 있는 북극곰'
+        }
+        disabled={!user}
         onClick={() => setCelebration((current) => current + 1)}
-        className="absolute inset-x-4 bottom-6 h-[300px] cursor-pointer rounded-3xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700"
+        className="absolute inset-x-4 bottom-6 h-[300px] cursor-pointer rounded-3xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700 disabled:cursor-default"
       >
         <span
           key={celebration}
           className={`absolute inset-0 ${cheering ? 'home-bear-cheer' : ''}`}
         >
           <Image
-            src={`/polar-bear/${cheering ? 'cheer' : success ? 'happy' : 'sad'}.png`}
+            src={`/polar-bear/${!user ? 'idle' : cheering ? 'cheer' : success ? 'happy' : 'sad'}.png`}
             alt={
-              cheering
-                ? '응원을 받아 기뻐하는 북극곰'
-                : success
-                  ? '절약에 성공해 두 팔을 들고 웃는 북극곰'
-                  : '목표 사용량을 초과해 눈물을 흘리는 북극곰'
+              !user
+                ? '빙하 위에 편안히 앉아 있는 북극곰'
+                : cheering
+                  ? '응원을 받아 기뻐하는 북극곰'
+                  : success
+                    ? '절약에 성공해 두 팔을 들고 웃는 북극곰'
+                    : '목표 사용량을 초과해 눈물을 흘리는 북극곰'
             }
             fill
             priority
