@@ -94,6 +94,10 @@ export default function SolarPage() {
       '<b id="monthly-consumption">—<i>kWh</i></b>',
     )
     .replace(/const DEV=\[[^\n]*\];/, 'const DEV=[];')
+    .replace(
+      /\+\r?\n\s*kp\('var\(--ok\)','배터리 SOC',[^\r\n]*\r?\n\s*kp\('var\(--gr\)','현재 단가',[^\r\n]*;/,
+      ';',
+    )
     .replace('let l=baseAt(h)', 'let l=0')
     .replace(
       'for(const d of DEV){if(h>=d.s&&h<d.e)',
